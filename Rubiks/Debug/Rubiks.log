@@ -1,0 +1,3 @@
+﻿  AI.cpp
+C:\Users\adler\src\Rubiks\Rubiks\AI.cpp(26,25): warning C4114: same type qualifier used more than once
+  Rubiks.vcxproj -> C:\Users\adler\src\Rubiks\Debug\Rubiks.exe
