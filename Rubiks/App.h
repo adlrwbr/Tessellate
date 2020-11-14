@@ -24,6 +24,7 @@ private:
 	GLuint colorbuffer;
 	/* model rotation speed */
 	float modelRotSpeed;
+	float fps;
 public:
 	App(CubeManager* cubemngr, AI& ai);
 	~App();

@@ -47,6 +47,11 @@ void FaceInstruction::print() {
 	std::cout << faceLetter << (clockwise ? "" : "'");
 }
 
+bool FaceInstruction::operator==(const FaceInstruction& other)
+{
+	return face == other.face && clockwise == other.clockwise;
+}
+
 CubeInstruction::CubeInstruction(glm::vec3 axis)
 	: axis(axis) {}
 
@@ -70,6 +75,11 @@ void CubeInstruction::print() {
 	else
 		axisNotation = '-';
 	std::cout << axisNotation << (axis[0] + axis[1] + axis[2] < 0 ? "'" : "");
+}
+
+bool CubeInstruction::operator==(const CubeInstruction& other)
+{
+	return axis == other.axis;
 }
 
 Cube::Cube(Color squares[54])
@@ -179,7 +189,7 @@ void Cube::print() const {
 		default:
 			return;
 		}
-		std::cout << face << "\n";
+		std::cout << "// " << face << "\n";
 		faces[i].print();
 	}
 }

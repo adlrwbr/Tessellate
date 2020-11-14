@@ -92,6 +92,7 @@ public:
 	bool execute(float deltatime, Cube* cube);
 	bool executeInstantly(Cube* cube);
 	void print();
+	bool operator==(const FaceInstruction& other);
 };
 
 
@@ -103,4 +104,5 @@ public:
 	bool execute(float deltatime, Cube* cube);
 	bool executeInstantly(Cube* cube);
 	void print();
+	bool operator==(const CubeInstruction& other);
 };

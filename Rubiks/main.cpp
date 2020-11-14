@@ -30,29 +30,30 @@ void beginInputHandler(CubeManager* cube);
 int main() {
     // Cube patterns
     Color custom[54] = {
-      Color::YELLOW,   Color::GREEN,  Color::YELLOW,
-      Color::ORANGE,   Color::GREEN,     Color::RED,
-         Color::RED,  Color::YELLOW,    Color::BLUE,
-
-      Color::ORANGE,     Color::RED,     Color::RED,
-       Color::WHITE,   Color::WHITE,   Color::WHITE,
-      Color::ORANGE,   Color::WHITE,     Color::RED,
-
-       Color::WHITE,  Color::ORANGE,   Color::GREEN,
-      Color::YELLOW,    Color::BLUE,    Color::BLUE,
-      Color::YELLOW,    Color::BLUE,  Color::YELLOW,
-
-       Color::GREEN,    Color::BLUE,   Color::WHITE,
-         Color::RED,  Color::YELLOW,   Color::GREEN,
-        Color::BLUE,  Color::YELLOW,  Color::ORANGE,
-
-       Color::GREEN,  Color::ORANGE,    Color::BLUE,
-       Color::GREEN,  Color::ORANGE,    Color::BLUE,
-      Color::ORANGE,  Color::YELLOW,   Color::WHITE,
-
-        Color::BLUE,     Color::RED,   Color::GREEN,
-       Color::GREEN,     Color::RED,   Color::WHITE,
-         Color::RED,  Color::ORANGE,   Color::WHITE
+        // front
+            Color::BLUE,  Color::ORANGE,  Color::ORANGE,
+             Color::RED,   Color::GREEN,  Color::YELLOW,
+          Color::YELLOW,  Color::YELLOW,  Color::YELLOW,
+        // up
+           Color::WHITE,   Color::WHITE,   Color::GREEN,
+           Color::WHITE,   Color::WHITE,   Color::WHITE,
+           Color::WHITE,   Color::WHITE,    Color::BLUE,
+        // back
+          Color::YELLOW,     Color::RED,  Color::ORANGE,
+          Color::ORANGE,    Color::BLUE,  Color::YELLOW,
+          Color::ORANGE,    Color::BLUE,   Color::WHITE,
+        // down
+           Color::GREEN,   Color::GREEN,    Color::BLUE,
+          Color::ORANGE,  Color::YELLOW,  Color::YELLOW,
+           Color::GREEN,    Color::BLUE,  Color::YELLOW,
+        // left
+           Color::GREEN,     Color::RED,     Color::RED,
+           Color::GREEN,  Color::ORANGE,   Color::GREEN,
+          Color::ORANGE,    Color::BLUE,     Color::RED,
+        // right
+           Color::WHITE,   Color::GREEN,     Color::RED,
+             Color::RED,     Color::RED,  Color::ORANGE,
+             Color::RED,    Color::BLUE,    Color::BLUE
     };
     Color standard[54] = {
         Color::GREEN, Color::GREEN, Color::GREEN,

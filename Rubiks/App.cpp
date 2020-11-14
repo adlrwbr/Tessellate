@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <chrono>
 #include <thread>
 #include <stdexcept>
 #include <functional> // for std::ref
@@ -22,7 +23,7 @@
 #include "Shader.h"
 
 App::App(CubeManager* cubemngr, AI& ai)
- : cubemngr(cubemngr), ai(ai), modelRotSpeed(0.2f) {
+ : cubemngr(cubemngr), ai(ai), modelRotSpeed(0.2f), fps(0) {
 
     // seed RNG
     srand(static_cast<unsigned int>(time(0)));
@@ -133,10 +134,11 @@ void App::loop() {
         // Use our shader
         glUseProgram(programID);
 
-        // get delta time
+        // get delta time and fps
         lastTime = currentTime;
         currentTime = glfwGetTime();
         deltaTime = float(currentTime - lastTime);
+        fps = 1 / deltaTime;
 
         Model = glm::rotate(Model, modelRotSpeed * deltaTime, glm::vec3(0, 1, 0));
         // Our ModelViewProjection : multiplication of our 3 matrices
@@ -190,6 +192,10 @@ void App::loop() {
 
         /* Poll for and process events */
         glfwPollEvents();
+
+        // sleep for the remainder of the frame 
+        //std::this_thread::sleep_for(std::chrono::seconds(long long(1/60.0 - deltaTime)));
+        while (glfwGetTime() - lastTime < 1 / 60.0) {};
     }
 }
 
@@ -208,6 +214,10 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
         app->cubemngr->cube->solveSpeed += 0.5f;
     } else if (key == GLFW_KEY_N && action == GLFW_PRESS) {
         app->cubemngr->cube->solveSpeed -= 0.5f;
+    } else if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+        std::cout << app->fps << std::endl;
+    } else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+        app->cubemngr->cube->print();
     }
 
     if (key == GLFW_KEY_S && action == GLFW_PRESS) { // scramble cube

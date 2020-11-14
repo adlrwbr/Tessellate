@@ -80,52 +80,76 @@ void AI::calculatePaint(Color pattern[9]) {
 		// corners
 		// for each square on the UP face
 		for (int i = 0; i < 9; i++) {
-			Color c = pattern[i];
-
 			// if square is not a corner, continue
 			if (!(i == 0 || i == 2 || i == 6 || i == 8))
 				continue;
+			
+			Color c = pattern[i];
 
 			// is it already in the correct location?
 			if (futureCube->getFace(FaceType::UP)->getColorAt(i) == c)
 				continue;
 
 			// if not, locate the tile
+			FaceType faceWCorner{};
+			bool faceFound = false;
+
+			// search the bottom left corner of every face
 			for (const FaceType& f : faces_on_xz) {
 				// if corner is in the top layer of a face, bring it to the bottom layer
-				if (isCornerTopLeft(f, c)) {
-					// rotate face cc, DOWN cc, face clockwise
-					std::shared_ptr<Instruction> instruction0 = std::make_shared<FaceInstruction>(f, false);
-					std::shared_ptr<Instruction> instruction1 = std::make_shared<FaceInstruction>(FaceType::DOWN, false);
-					std::shared_ptr<Instruction> instruction2 = std::make_shared<FaceInstruction>(f);
-					addInstruction(instruction0);
-					addInstruction(instruction1);
-					addInstruction(instruction2);
+				if (isCornerBottomLeft(f, c)) {
+					faceFound = true;
+					faceWCorner = f;
+					break;
 				}
-
 			}
-			// the desired corner is now somewhere in the bottom layer
+			// search the top left corner of every face
+			if (!faceFound) {
+				for (const FaceType& f : faces_on_xz) {
+					// if corner is in the top left of a face and that face's top left corner is not correct, bring it to the bottom layer
+					if (isCornerTopLeft(f, c) && !(f == FaceType::FRONT && futureCube->getFace(FaceType::UP)->getColorAt(6) == pattern[6]
+						|| f == FaceType::RIGHT && futureCube->getFace(FaceType::UP)->getColorAt(8) == pattern[8]
+						|| f == FaceType::BACK && futureCube->getFace(FaceType::UP)->getColorAt(2) == pattern[2]
+						|| f == FaceType::LEFT && futureCube->getFace(FaceType::UP)->getColorAt(0) == pattern[0])) {
+						// rotate face cc, DOWN cc, face clockwise, DOWN clockwise
+						std::shared_ptr<Instruction> instruction0 = std::make_shared<FaceInstruction>(f, false);
+						std::shared_ptr<Instruction> instruction1 = std::make_shared<FaceInstruction>(FaceType::DOWN, false);
+						std::shared_ptr<Instruction> instruction2 = std::make_shared<FaceInstruction>(f);
+						std::shared_ptr<Instruction> instruction3 = std::make_shared<FaceInstruction>(FaceType::DOWN);
+						addInstruction(instruction0);
+						addInstruction(instruction1);
+						addInstruction(instruction2);
+						addInstruction(instruction3);
+
+						faceFound = true;
+						faceWCorner = f;
+						break;
+					}
+				}
+			}
+				
+			// the desired corner is now the bottom left corner of faceWCorner
+
+			// rotate until the corner is under i
+			while (i == 0 && faceWCorner != FaceType::LEFT
+				|| i == 2 && faceWCorner != FaceType::BACK
+				|| i == 6 && faceWCorner != FaceType::FRONT
+				|| i == 8 && faceWCorner != FaceType::RIGHT) {
+				std::shared_ptr<Instruction> down = std::make_shared<FaceInstruction>(FaceType::DOWN);
+				addInstruction(down);
+				faceWCorner = getRelRightOnY(faceWCorner);
+			}
 
 			// if the tile is on the DOWN face, bring it up to a face on x or z
-			if (futureCube->getFace(FaceType::DOWN)->getColorAt(0) == c
-				|| futureCube->getFace(FaceType::DOWN)->getColorAt(2) == c
-				|| futureCube->getFace(FaceType::DOWN)->getColorAt(6) == c
-				|| futureCube->getFace(FaceType::DOWN)->getColorAt(8) == c) {
-				// rel left clockwise, down cc, rel left cc, down, down
-				FaceType relLeftF;
-				if (futureCube->getFace(FaceType::DOWN)->getColorAt(0) == c) {
-					relLeftF = FaceType::LEFT;
-				} else if (futureCube->getFace(FaceType::DOWN)->getColorAt(2) == c) {
-					relLeftF = FaceType::FRONT;
-				} else if (futureCube->getFace(FaceType::DOWN)->getColorAt(6) == c) {
-					relLeftF = FaceType::BACK;
-				} else {
-					relLeftF = FaceType::RIGHT;
-				}
+			if (faceWCorner == FaceType::FRONT && futureCube->getFace(FaceType::DOWN)->getColorAt(0) == c
+				|| faceWCorner == FaceType::RIGHT && futureCube->getFace(FaceType::DOWN)->getColorAt(2) == c
+				|| faceWCorner == FaceType::LEFT && futureCube->getFace(FaceType::DOWN)->getColorAt(6) == c
+				|| faceWCorner == FaceType::BACK && futureCube->getFace(FaceType::DOWN)->getColorAt(8) == c) {
 
-				std::shared_ptr<Instruction> relLeft = std::make_shared<FaceInstruction>(relLeftF);
+				// rel left clockwise, down cc, rel left cc, down, down
+				std::shared_ptr<Instruction> relLeft = std::make_shared<FaceInstruction>(getRelLeftOnY(faceWCorner));
 				std::shared_ptr<Instruction> downCC = std::make_shared<FaceInstruction>(FaceType::DOWN, false);
-				std::shared_ptr<Instruction> relLeftCC = std::make_shared<FaceInstruction>(relLeftF, false);
+				std::shared_ptr<Instruction> relLeftCC = std::make_shared<FaceInstruction>(getRelLeftOnY(faceWCorner), false);
 				std::shared_ptr<Instruction> down0 = std::make_shared<FaceInstruction>(FaceType::DOWN);
 				std::shared_ptr<Instruction> down1 = std::make_shared<FaceInstruction>(FaceType::DOWN);
 				addInstruction(relLeft);
@@ -134,16 +158,52 @@ void AI::calculatePaint(Color pattern[9]) {
 				addInstruction(down0);
 				addInstruction(down1);
 			}
+
+			// the desired tile is now in the bottom left corner of faceWCorner on an x_z face
+
+			// if tile is in the bottom left of this face
+			if (faceWCorner != FaceType::BACK && futureCube->getFace(faceWCorner)->getColorAt(6) == c
+				|| faceWCorner == FaceType::BACK && futureCube->getFace(faceWCorner)->getColorAt(2) == c) {
+				// down, rel left, down cc, rel left cc
+				std::shared_ptr<Instruction> instruction0 = std::make_shared<FaceInstruction>(FaceType::DOWN);
+				std::shared_ptr<Instruction> instruction1 = std::make_shared<FaceInstruction>(getRelLeftOnY(faceWCorner));
+				std::shared_ptr<Instruction> instruction2 = std::make_shared<FaceInstruction>(FaceType::DOWN, false);
+				std::shared_ptr<Instruction> instruction3 = std::make_shared<FaceInstruction>(getRelLeftOnY(faceWCorner), false);
+				addInstruction(instruction0);
+				addInstruction(instruction1);
+				addInstruction(instruction2);
+				addInstruction(instruction3);
+			} else { // tile is in the bottom right of the relatively left face
+				// down cc, face cc, down, face
+				std::shared_ptr<Instruction> instruction0 = std::make_shared<FaceInstruction>(FaceType::DOWN, false);
+				std::shared_ptr<Instruction> instruction1 = std::make_shared<FaceInstruction>(faceWCorner, false);
+				std::shared_ptr<Instruction> instruction2 = std::make_shared<FaceInstruction>(FaceType::DOWN);
+				std::shared_ptr<Instruction> instruction3 = std::make_shared<FaceInstruction>(faceWCorner);
+				addInstruction(instruction0);
+				addInstruction(instruction1);
+				addInstruction(instruction2);
+				addInstruction(instruction3);
+			}
 		}
 
 		
 		for (std::shared_ptr<Instruction>& inst : instructions)
 			inst.get()->print();
+		std::cout << std::endl;
 		// simplify instruction set
 		/*simplifyInstructions();
-		std::cout << std::endl;
 		for (std::shared_ptr<Instruction>& inst : instructions)
 			inst.get()->print();*/
+
+		bool match = true;
+		for (int j = 0; j < 9; j++) {
+			if (futureCube->getFace(static_cast<FaceType>(FaceType::UP))->getColorAt(j) != pattern[j])
+				match = false;
+		}
+		
+		std::cout << "UP does " << (match ? "" : "not ") << "match the pattern" << std::endl;
+		if (!match)
+			cubemngr->cube->print();
 	}
 
 }
@@ -162,6 +222,20 @@ void AI::addInstruction(std::shared_ptr<Instruction>& instruction) {
 }
 
 void AI::simplifyInstructions() {
+	for (int i = 0; i < instructions.size(); i++) {
+		std::shared_ptr<Instruction>& inst = instructions[i];
+		// unnecessary rotations ex. FFFF
+		if (i + 3 < instructions.size()) { 
+			if(FaceInstruction* instruction0 = dynamic_cast<FaceInstruction*>(instructions[i].get())) {
+				// inst was safely casted to FaceInstruction	
+			}
+		}
+
+		// cancel out opposite face instructions ex. FF'
+
+		// optimize turns ex. FFF -> F'
+
+	}
 }
 
 FaceType AI::getRelLeftOnY(FaceType face)
