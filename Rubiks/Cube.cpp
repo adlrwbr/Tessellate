@@ -461,7 +461,6 @@ void Cube::rotateColors(FaceType face, bool clockwise) {
 	}
 }
 
-// TO-DO: y-axis rotation does not work with middle layer
 void Cube::rotateColors(glm::vec3 axis) {
 	// check if axis is clockwise or cclockwise
 	bool clockwise = (axis.x + axis.y + axis.z) > 0;

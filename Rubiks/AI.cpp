@@ -20,17 +20,17 @@ void AI::calculatePaint(Color pattern[9]) {
 	// algorithm to "paint" top face
 	if (cubemngr->getQueueSize() == 0) {
 
-		// rotate so that white center is on top
-		rotateToTopCenter(Color::WHITE);
+		// rotate so that center is on top
+		rotateToTopCenter(pattern[4]);
 
 		static const FaceType const faces_on_xz[4] = { FaceType::FRONT, FaceType::RIGHT, FaceType::BACK, FaceType::LEFT };
 
-		// get all white edges in top layer
+		// get all correct edges in top layer
 		int loopcounter = 0; // to-do: debug only. Delete me.
-		while (!(isEdgeInTopLayer(faces_on_xz[0], Color::WHITE)
-			&& isEdgeInTopLayer(faces_on_xz[1], Color::WHITE)
-			&& isEdgeInTopLayer(faces_on_xz[2], Color::WHITE)
-			&& isEdgeInTopLayer(faces_on_xz[3], Color::WHITE)
+		while (!(isEdgeInTopLayer(faces_on_xz[0], pattern[7])
+			&& isEdgeInTopLayer(faces_on_xz[1], pattern[5])
+			&& isEdgeInTopLayer(faces_on_xz[2], pattern[1])
+			&& isEdgeInTopLayer(faces_on_xz[3], pattern[3])
 			)) {
 			loopcounter++;
 			if (loopcounter > 10) {
@@ -39,20 +39,28 @@ void AI::calculatePaint(Color pattern[9]) {
 			}
 			// for each face on the x and z axes
 			for (const FaceType& f : faces_on_xz) {
-				// if there is a white edge in the middle layer and not the top layer, rotate the face until that white edge is on top
-				if (!isEdgeInTopLayer(f, Color::WHITE) && (isEdgeMiddleLeft(f, Color::WHITE) || isEdgeMiddleRight(f, Color::WHITE))) {
+
+				Color c = getTargetEdgeColorOf(f, pattern); // the color of the edge that needs to be in the top layer of this face
+
+				// if the edge is in the middle layer and not the top layer, rotate the face until the edge is on top
+				if (!isEdgeInTopLayer(f, c) && (isEdgeMiddleLeft(f, c) || isEdgeMiddleRight(f, c))) {
 					std::shared_ptr<Instruction> instruction = std::make_shared<FaceInstruction>(f, isEdgeMiddleLeft(f, Color::WHITE));
 					addInstruction(instruction);
 				}
-				// if there is a white edge in the bottom layer and not the top layer, rotate the face until that white edge is on top
-				if (!isEdgeInTopLayer(f, Color::WHITE) && isEdgeInBottomLayer(f, Color::WHITE)) {
+				// if the edge is in the bottom layer and not the top layer, rotate the face until the edge is on top
+				if (!isEdgeInTopLayer(f, c) && isEdgeInBottomLayer(f, c)) {
 					std::shared_ptr<Instruction> instruction0 = std::make_shared<FaceInstruction>(f);
 					std::shared_ptr<Instruction> instruction1 = std::make_shared<FaceInstruction>(f);
 					addInstruction(instruction0);
 					addInstruction(instruction1);
 				}
-				// if there's a white edge in the top layer and middle-left of this face and in top layer of relative left face
-				if (isEdgeInTopLayer(f, Color::WHITE) && isEdgeMiddleLeft(f, Color::WHITE) && isEdgeInTopLayer(getRelLeftOnY(f), Color::WHITE)) {
+				// if the correct edge is in the top layer of this face, and the correct edge is in the top layer of the relatively left face
+				// and there is a correct edge of ANOTHER face in the middle-left of this face
+				if (isEdgeInTopLayer(f, c) 
+					&& (isEdgeInTopLayer(getRelLeftOnY(f), getTargetEdgeColorOf(getRelLeftOnY(f), pattern)))
+					&& (isEdgeMiddleLeft(f, getTargetEdgeColorOf(getRelRightOnY(f), pattern)) // RIGHT face's target edge is in middle left
+						|| isEdgeMiddleLeft(f, getTargetEdgeColorOf(getRelRightOnY(getRelRightOnY(f)), pattern)) // BACK face's target edge is in middle left
+						)) { 
 					// rotate face cc, rotate DOWN, rotate face clockwise
 					std::shared_ptr<Instruction> instruction0 = std::make_shared<FaceInstruction>(f, false);
 					std::shared_ptr<Instruction> instruction1 = std::make_shared<FaceInstruction>(FaceType::DOWN);
@@ -61,22 +69,45 @@ void AI::calculatePaint(Color pattern[9]) {
 					addInstruction(instruction1);
 					addInstruction(instruction2);
 				}
-				// while there is a white edge in the top and bottom layer, rotate DOWN clockwise 
-				while (isEdgeInTopLayer(f, Color::WHITE) && isEdgeInBottomLayer(f, Color::WHITE)) {
+
+				// move missing target colors from bottom layer into their proper positions
+				Color relRightTarg = getTargetEdgeColorOf(getRelRightOnY(f), pattern);
+				Color relBackTarg = getTargetEdgeColorOf(getRelRightOnY(getRelRightOnY(f)), pattern);
+				Color relLeftTarg = getTargetEdgeColorOf(getRelLeftOnY(f), pattern);
+
+				bool isRTargInBottom = isEdgeInBottomLayer(f, relRightTarg) && !isEdgeInTopLayer(getRelRightOnY(f), relRightTarg); // RIGHT face's target edge is in bottom
+				bool isBTargInBottom = isEdgeInBottomLayer(f, relBackTarg) && !isEdgeInTopLayer(getRelRightOnY(getRelRightOnY(f)), relBackTarg); // BACK face's target edge is in bottom
+				bool isLTargInBottom = isEdgeInBottomLayer(f, relLeftTarg) && !isEdgeInTopLayer(getRelLeftOnY(f), relLeftTarg); // LEFT face's target edge is in bottom
+
+				if (isRTargInBottom) { // if the RIGHT face's target color is in the bottom layer of this face and it is not in the top layer of the RIGHT face
 					std::shared_ptr<Instruction> rotateD = std::make_shared<FaceInstruction>(FaceType::DOWN);
+					std::shared_ptr<Instruction> rotateRelR = std::make_shared<FaceInstruction>(getRelRightOnY(f));
 					addInstruction(rotateD);
+					addInstruction(rotateRelR);
+					addInstruction(rotateRelR);
+				} else if (isLTargInBottom) {
+					std::shared_ptr<Instruction> rotateDCC = std::make_shared<FaceInstruction>(FaceType::DOWN);
+					std::shared_ptr<Instruction> rotateRelL = std::make_shared<FaceInstruction>(getRelLeftOnY(f));
+					addInstruction(rotateDCC);
+					addInstruction(rotateRelL);
+					addInstruction(rotateRelL);
+				} else if (isBTargInBottom) {
+					std::shared_ptr<Instruction> rotateD = std::make_shared<FaceInstruction>(FaceType::DOWN);
+					std::shared_ptr<Instruction> rotateRelB = std::make_shared<FaceInstruction>(getRelRightOnY(getRelRightOnY(f)));
+					addInstruction(rotateD);
+					addInstruction(rotateD);
+					addInstruction(rotateRelB);
+					addInstruction(rotateRelB);
 				}
 			}
 		}
 
 		// flip edges if they are not on the UP face
-		while (isEdgeFlipped(faces_on_xz[0], Color::WHITE) || isEdgeFlipped(faces_on_xz[1], Color::WHITE) || isEdgeFlipped(faces_on_xz[2], Color::WHITE) || isEdgeFlipped(faces_on_xz[3], Color::WHITE)) {
-			for (const FaceType& f : faces_on_xz) {
-				if (isEdgeFlipped(f, Color::WHITE))
-					flipEdge(f);
-			}
+		for (const FaceType& f : faces_on_xz) {
+			if (isEdgeFlipped(f, getTargetEdgeColorOf(f, pattern)))
+				flipEdge(f);
 		}
-
+		
 		// corners
 		// for each square on the UP face
 		for (int i = 0; i < 9; i++) {
@@ -186,22 +217,18 @@ void AI::calculatePaint(Color pattern[9]) {
 			}
 		}
 
-		
-		for (std::shared_ptr<Instruction>& inst : instructions)
-			inst.get()->print();
-		std::cout << std::endl;
 		// simplify instruction set
-		/*simplifyInstructions();
-		for (std::shared_ptr<Instruction>& inst : instructions)
-			inst.get()->print();*/
+		simplifyInstructions();
 
+		// verify pattern is correct
 		bool match = true;
 		for (int j = 0; j < 9; j++) {
-			if (futureCube->getFace(static_cast<FaceType>(FaceType::UP))->getColorAt(j) != pattern[j])
+			if (futureCube->getFace(static_cast<FaceType>(FaceType::UP))->getColorAt(j) != pattern[j]) {
 				match = false;
+				break;
+			}
 		}
-		
-		std::cout << "UP does " << (match ? "" : "not ") << "match the pattern" << std::endl;
+		std::cout << "UP " << (match ? "matches" : "DOES NOT MATCH") << " the pattern" << std::endl;
 		if (!match)
 			cubemngr->cube->print();
 	}
@@ -209,7 +236,7 @@ void AI::calculatePaint(Color pattern[9]) {
 }
 
 void AI::start() {
-	// to-do: print solution
+	printInstructions();
 	for (std::shared_ptr<Instruction>& instruction : instructions) { // use the & to avoid copying the instruction objects into the scope
 		cubemngr->addToQueue(instruction);
 	}
@@ -236,6 +263,12 @@ void AI::simplifyInstructions() {
 		// optimize turns ex. FFF -> F'
 
 	}
+}
+
+void AI::printInstructions() {
+	for (std::shared_ptr<Instruction>& inst : instructions)
+		inst.get()->print();
+	std::cout << std::endl;
 }
 
 FaceType AI::getRelLeftOnY(FaceType face)
@@ -308,6 +341,19 @@ void AI::rotateToTopCenter(Color c) {
 		addInstruction(instruction);
 
 	}
+}
+
+bool AI::isEdgeInPosition(FaceType face, Color pattern[9]) {
+	int upIndex;
+	if (face == FaceType::FRONT)
+		upIndex = 7;
+	else if (face == FaceType::RIGHT)
+		upIndex = 5;
+	else if (face == FaceType::BACK)
+		upIndex = 1;
+	else // LEFT
+		upIndex = 3;
+	return futureCube->getFace(face)->getColorAt(upIndex) == getTargetEdgeColorOf(face, pattern);
 }
 
 bool AI::isEdgeInTopLayer(FaceType face, Color color)
@@ -410,6 +456,18 @@ bool AI::isEdgeInBottomLayer(FaceType face, Color color)
 	return (futureCube->getFace(FaceType::DOWN)->getColorAt(downSquare) == color || futureCube->getFace(face)->getColorAt(edgeSquare) == color);
 }
 
+Color AI::getTargetEdgeColorOf(FaceType face, Color pattern[9])
+{
+	if (face == FaceType::FRONT)
+		return pattern[7];
+	else if (face == FaceType::RIGHT)
+		return pattern[5];
+	else if (face == FaceType::BACK)
+		return pattern[1];
+	else // LEFT
+		return pattern[3];
+}
+
 bool AI::isEdgeFlipped(FaceType face, Color color)
 {
 	// return false if a square of Color is on the face
@@ -429,10 +487,14 @@ void AI::flipEdge(FaceType face) {
 	// rotate the relatively left face counterclockwise
 	std::shared_ptr<Instruction> rotRelLeftCC = std::make_shared<FaceInstruction>(getRelLeftOnY(face), false);
 
+	// rotate UP counterclockwise
+	std::shared_ptr<Instruction> rotUPCC = std::make_shared<FaceInstruction>(FaceType::UP, false);
+
 	// add instructions
 	addInstruction(rotFaceCC);
 	addInstruction(rotUP);
 	addInstruction(rotRelLeftCC);
+	addInstruction(rotUPCC);
 }
 
 bool AI::isCornerTopLeft(FaceType face, Color color)

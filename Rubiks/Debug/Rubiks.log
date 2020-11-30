@@ -1,2 +1,5 @@
-﻿  App.cpp
+﻿  AI.cpp
+C:\Users\adler\src\Rubiks\Rubiks\AI.cpp(26,25): warning C4114: same type qualifier used more than once
+C:\Users\adler\src\Rubiks\Rubiks\AI.cpp(258,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\AI.cpp(261,13): warning C4018: '<': signed/unsigned mismatch
   Rubiks.vcxproj -> C:\Users\adler\src\Rubiks\Debug\Rubiks.exe

@@ -34,6 +34,8 @@ private:
 	*/
 	void simplifyInstructions();
 
+	void printInstructions();
+
 	/**
 	* returns the relatively left face on the y axis.
 	* Ex. getRelLeftOnY(FaceType::FRONT) returns FaceType::LEFT
@@ -51,6 +53,9 @@ private:
 	/* pushes instructions to rotate the cube so that Color c becomes the top center square */
 	void rotateToTopCenter(Color c);
 
+	/* returns true if an edge piece on a face is in the correct position */
+	bool isEdgeInPosition(FaceType face, Color pattern[9]);
+
 	/** 
 	* returns true if an edge piece of Color color is in the top layer of a face
 	* Preconditions:
@@ -66,6 +71,9 @@ private:
 
 	/* returns true if an edge piece of Color color is in the bottom layer of a face */
 	bool isEdgeInBottomLayer(FaceType face, Color color);
+
+	/* returns the color of the edge that needs to be in the top layer of this face based on the UP pattern supplied */
+	Color getTargetEdgeColorOf(FaceType face, Color pattern[9]);
 
 	/**
 	* returns true if the Color square is not on the UP face.

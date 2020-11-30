@@ -31,29 +31,29 @@ int main() {
     // Cube patterns
     Color custom[54] = {
         // front
-            Color::BLUE,  Color::ORANGE,  Color::ORANGE,
-             Color::RED,   Color::GREEN,  Color::YELLOW,
-          Color::YELLOW,  Color::YELLOW,  Color::YELLOW,
+           Color::GREEN,  Color::YELLOW,   Color::WHITE,
+           Color::GREEN,   Color::GREEN,  Color::YELLOW,
+           Color::GREEN,    Color::BLUE,   Color::WHITE,
         // up
-           Color::WHITE,   Color::WHITE,   Color::GREEN,
-           Color::WHITE,   Color::WHITE,   Color::WHITE,
+           Color::WHITE,   Color::GREEN,  Color::YELLOW,
            Color::WHITE,   Color::WHITE,    Color::BLUE,
+          Color::ORANGE,   Color::GREEN,  Color::ORANGE,
         // back
-          Color::YELLOW,     Color::RED,  Color::ORANGE,
-          Color::ORANGE,    Color::BLUE,  Color::YELLOW,
-          Color::ORANGE,    Color::BLUE,   Color::WHITE,
+           Color::GREEN,  Color::ORANGE,  Color::ORANGE,
+          Color::YELLOW,    Color::BLUE,  Color::ORANGE,
+           Color::GREEN,   Color::WHITE,     Color::RED,
         // down
-           Color::GREEN,   Color::GREEN,    Color::BLUE,
-          Color::ORANGE,  Color::YELLOW,  Color::YELLOW,
-           Color::GREEN,    Color::BLUE,  Color::YELLOW,
+             Color::RED,     Color::RED,     Color::RED,
+          Color::YELLOW,  Color::YELLOW,     Color::RED,
+           Color::WHITE,    Color::BLUE,  Color::YELLOW,
         // left
-           Color::GREEN,     Color::RED,     Color::RED,
-           Color::GREEN,  Color::ORANGE,   Color::GREEN,
-          Color::ORANGE,    Color::BLUE,     Color::RED,
+             Color::RED,     Color::RED,  Color::YELLOW,
+             Color::RED,  Color::ORANGE,  Color::ORANGE,
+          Color::ORANGE,  Color::ORANGE,  Color::YELLOW,
         // right
-           Color::WHITE,   Color::GREEN,     Color::RED,
-             Color::RED,     Color::RED,  Color::ORANGE,
-             Color::RED,    Color::BLUE,    Color::BLUE
+            Color::BLUE,   Color::WHITE,    Color::BLUE,
+            Color::BLUE,     Color::RED,   Color::WHITE,
+            Color::BLUE,   Color::GREEN,    Color::BLUE
     };
     Color standard[54] = {
         Color::GREEN, Color::GREEN, Color::GREEN,
@@ -82,7 +82,7 @@ int main() {
     };
 
     // Create cube manager
-    CubeManager cubemngr(custom);
+    CubeManager cubemngr(standard);
 
     // print cube
     cubemngr.cube->print();
