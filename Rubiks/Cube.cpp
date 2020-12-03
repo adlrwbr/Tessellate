@@ -13,16 +13,15 @@
 FaceInstruction::FaceInstruction(FaceType face, bool clockwise)
 	: face(face), clockwise(clockwise) {}
 
-bool FaceInstruction::execute(float deltatime, Cube* cube) {
+bool FaceInstruction::execute(float deltatime, Cube* cube) const {
 	return cube->rotate(face, cube->solveSpeed * deltatime, clockwise);
 }
 
-bool FaceInstruction::executeInstantly(Cube* cube)
-{
+bool FaceInstruction::executeInstantly(Cube* cube) const {
 	return cube->rotate(face, glm::half_pi<float>(), clockwise);
 }
 
-void FaceInstruction::print() {
+void FaceInstruction::print() const {
 	char faceLetter{};
 	switch (face) {
 	case FaceType::FRONT:
@@ -47,24 +46,41 @@ void FaceInstruction::print() {
 	std::cout << faceLetter << (clockwise ? "" : "'");
 }
 
-bool FaceInstruction::operator==(const FaceInstruction& other)
+bool FaceInstruction::isFaceInstruction() const
 {
+	return true;
+}
+
+FaceType FaceInstruction::getFace() const
+{
+	return face;
+}
+
+bool FaceInstruction::isClockwise() const
+{
+	return clockwise;
+}
+
+void FaceInstruction::setDirection(bool clockwise) {
+	this->clockwise = clockwise;
+}
+
+bool FaceInstruction::operator==(const FaceInstruction& other) const {
 	return face == other.face && clockwise == other.clockwise;
 }
 
 CubeInstruction::CubeInstruction(glm::vec3 axis)
 	: axis(axis) {}
 
-bool CubeInstruction::execute(float deltatime, Cube* cube) {
+bool CubeInstruction::execute(float deltatime, Cube* cube) const {
 	return cube->rotate(axis, cube->solveSpeed * deltatime);
 }
 
-bool CubeInstruction::executeInstantly(Cube* cube)
-{
+bool CubeInstruction::executeInstantly(Cube* cube) const {
 	return cube->rotate(axis, glm::half_pi<float>());
 }
 
-void CubeInstruction::print() {
+void CubeInstruction::print() const {
 	char axisNotation{};
 	if (axis[0] == 1 || axis[0] == -1)
 		axisNotation = 'x';
@@ -77,8 +93,12 @@ void CubeInstruction::print() {
 	std::cout << axisNotation << (axis[0] + axis[1] + axis[2] < 0 ? "'" : "");
 }
 
-bool CubeInstruction::operator==(const CubeInstruction& other)
+bool CubeInstruction::isFaceInstruction() const
 {
+	return false;
+}
+
+bool CubeInstruction::operator==(const CubeInstruction& other) const {
 	return axis == other.axis;
 }
 

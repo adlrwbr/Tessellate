@@ -77,10 +77,11 @@ class Instruction {
 protected:
 	Instruction(); // ban default constructor
 public:
-	virtual bool execute(float deltatime, Cube* cube) = 0;
+	virtual bool execute(float deltatime, Cube* cube) const = 0;
 	/* executes the instruction instantly. Ex. instantly rotates 90 degrees instead of slowly */
-	virtual bool executeInstantly(Cube* cube) = 0;
-	virtual void print() = 0;
+	virtual bool executeInstantly(Cube* cube) const = 0;
+	virtual void print() const = 0;
+	virtual bool isFaceInstruction() const = 0;
 };
 
 class FaceInstruction : public Instruction {
@@ -89,10 +90,14 @@ protected:
 	bool clockwise;
 public:
 	FaceInstruction(FaceType face, bool clockwise = true);
-	bool execute(float deltatime, Cube* cube);
-	bool executeInstantly(Cube* cube);
-	void print();
-	bool operator==(const FaceInstruction& other);
+	bool execute(float deltatime, Cube* cube) const;
+	bool executeInstantly(Cube* cube) const;
+	void print() const;
+	bool isFaceInstruction() const;
+	FaceType getFace() const;
+	bool isClockwise() const;
+	void setDirection(bool clockwise);
+	bool operator==(const FaceInstruction& other) const;
 };
 
 
@@ -101,8 +106,9 @@ protected:
 	glm::vec3 axis;
 public:
 	CubeInstruction(glm::vec3 axis);
-	bool execute(float deltatime, Cube* cube);
-	bool executeInstantly(Cube* cube);
-	void print();
-	bool operator==(const CubeInstruction& other);
+	bool execute(float deltatime, Cube* cube) const;
+	bool executeInstantly(Cube* cube) const;
+	void print() const;
+	bool isFaceInstruction() const;
+	bool operator==(const CubeInstruction& other) const;
 };

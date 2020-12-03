@@ -32,7 +32,7 @@ private:
 	* simplifies the instruction set. Ex. F, F' cancel out. F, F, F turns into F'
 	* Postcondition: state of cube does not change before and after instruction simplification
 	*/
-	void simplifyInstructions();
+	void simplifyInstructions(std::vector<std::shared_ptr<Instruction>>& instructions);
 
 	void printInstructions();
 
@@ -52,9 +52,9 @@ private:
 
 	/* pushes instructions to rotate the cube so that Color c becomes the top center square */
 	void rotateToTopCenter(Color c);
-
-	/* returns true if an edge piece on a face is in the correct position */
-	bool isEdgeInPosition(FaceType face, Color pattern[9]);
+	
+	/* returns the color of the edge that needs to be in the top layer of this face based on the UP pattern supplied */
+	Color getTargetEdgeColorOf(FaceType face, Color pattern[9]);
 
 	/** 
 	* returns true if an edge piece of Color color is in the top layer of a face
@@ -71,9 +71,6 @@ private:
 
 	/* returns true if an edge piece of Color color is in the bottom layer of a face */
 	bool isEdgeInBottomLayer(FaceType face, Color color);
-
-	/* returns the color of the edge that needs to be in the top layer of this face based on the UP pattern supplied */
-	Color getTargetEdgeColorOf(FaceType face, Color pattern[9]);
 
 	/**
 	* returns true if the Color square is not on the UP face.

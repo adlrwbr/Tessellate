@@ -226,9 +226,9 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
         app->cubemngr->resetCube();
     } else if (key == GLFW_KEY_P && action == GLFW_PRESS) { // paint cube
         // by the time this goes out of scope it is no longer needed
-        Color paintPattern[9] = { Color::RED,   Color::WHITE,   Color::RED,
-                                  Color::ORANGE,   Color::BLUE,   Color::WHITE,
-                                  Color::RED,   Color::YELLOW,   Color::GREEN };
+        Color paintPattern[9] = { Color::BLUE,   Color::WHITE,   Color::GREEN,
+                                  Color::WHITE,   Color::ORANGE,   Color::WHITE,
+                                  Color::GREEN,   Color::WHITE,   Color::BLUE };
         app->ai.calculatePaint(paintPattern);
         app->ai.start();
     } else if (key == GLFW_KEY_X && action == GLFW_PRESS) { // rotate cube across x axis

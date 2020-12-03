@@ -1,6 +1,7 @@
 #include "AI.h"
 
 #include <iostream>
+#include <typeinfo>
 
 AI::AI(CubeManager* cubemngr)
 	: cubemngr(cubemngr), futureCube(new Cube(cubemngr->cube)) {}
@@ -216,10 +217,6 @@ void AI::calculatePaint(Color pattern[9]) {
 				addInstruction(instruction3);
 			}
 		}
-
-		// simplify instruction set
-		simplifyInstructions();
-
 		// verify pattern is correct
 		bool match = true;
 		for (int j = 0; j < 9; j++) {
@@ -231,6 +228,12 @@ void AI::calculatePaint(Color pattern[9]) {
 		std::cout << "UP " << (match ? "matches" : "DOES NOT MATCH") << " the pattern" << std::endl;
 		if (!match)
 			cubemngr->cube->print();
+
+		// simplify instruction set
+		std::cout << "simplification: " << '\n';
+		printInstructions();
+		simplifyInstructions(instructions);
+
 	}
 
 }
@@ -248,21 +251,64 @@ void AI::addInstruction(std::shared_ptr<Instruction>& instruction) {
 	instructions.push_back(instruction);
 }
 
-void AI::simplifyInstructions() {
+void AI::simplifyInstructions(std::vector<std::shared_ptr<Instruction>>& instructions) {
+
+	bool simplified = false; // becomes true if a simplification occurred
+
+	// for each instruction
 	for (int i = 0; i < instructions.size(); i++) {
 		std::shared_ptr<Instruction>& inst = instructions[i];
-		// unnecessary rotations ex. FFFF
-		if (i + 3 < instructions.size()) { 
-			if(FaceInstruction* instruction0 = dynamic_cast<FaceInstruction*>(instructions[i].get())) {
-				// inst was safely casted to FaceInstruction	
+		
+		// simplify face instructions
+		if (inst.get()->isFaceInstruction()) {
+
+			// remove unnecessary rotations ex. FFFF
+			if (i + 3 < instructions.size()
+				&& instructions[i + 1].get()->isFaceInstruction()
+				&& instructions[i + 2].get()->isFaceInstruction()
+				&& instructions[i + 3].get()->isFaceInstruction()
+				&& *static_cast<FaceInstruction*>(inst.get()) == *static_cast<FaceInstruction*>(instructions[i + 1].get())
+				&& *static_cast<FaceInstruction*>(inst.get()) == *static_cast<FaceInstruction*>(instructions[i + 2].get())
+				&& *static_cast<FaceInstruction*>(inst.get()) == *static_cast<FaceInstruction*>(instructions[i + 3].get())
+				) {
+				instructions.erase(instructions.begin() + i, instructions.begin() + i + 4);
+				i--;
+				simplified = true;
+
+
+
+			// remove opposing face instructions ex. FF'
+			} else if (i + 1 < instructions.size() && instructions[i + 1].get()->isFaceInstruction()
+				&& static_cast<FaceInstruction*>(inst.get())->getFace() == static_cast<FaceInstruction*>(instructions[i + 1].get())->getFace()
+				&& static_cast<FaceInstruction*>(inst.get())->isClockwise() != static_cast<FaceInstruction*>(instructions[i + 1].get())->isClockwise()
+				) {
+				instructions.erase(instructions.begin() + i, instructions.begin() + i + 2);
+				i--;
+				simplified = true;
+
+			// optimize inefficient face instructions ex. FFF -> F'
+			} else if (i + 2 < instructions.size()
+				&& instructions[i + 1].get()->isFaceInstruction()
+				&& instructions[i + 2].get()->isFaceInstruction()
+				&& *static_cast<FaceInstruction*>(inst.get()) == *static_cast<FaceInstruction*>(instructions[i + 1].get())
+				&& *static_cast<FaceInstruction*>(inst.get()) == *static_cast<FaceInstruction*>(instructions[i + 2].get())
+				) {
+				static_cast<FaceInstruction*>(inst.get())->setDirection(!static_cast<FaceInstruction*>(inst.get())->isClockwise()); // flip direction of first instruction
+				instructions.erase(instructions.begin() + i + 1, instructions.begin() + i + 3); // erase next and next-next instructions
+				// did not erase inst from instructions; no need to decrement i
+				simplified = true;
 			}
+
+		} else { // to-do: simplify cube instructions
+
 		}
-
-		// cancel out opposite face instructions ex. FF'
-
-		// optimize turns ex. FFF -> F'
-
 	}
+
+	// recursion
+	if (simplified)
+		simplifyInstructions(instructions);
+	else
+		return; // termination condition
 }
 
 void AI::printInstructions() {
@@ -343,17 +389,16 @@ void AI::rotateToTopCenter(Color c) {
 	}
 }
 
-bool AI::isEdgeInPosition(FaceType face, Color pattern[9]) {
-	int upIndex;
+Color AI::getTargetEdgeColorOf(FaceType face, Color pattern[9])
+{
 	if (face == FaceType::FRONT)
-		upIndex = 7;
+		return pattern[7];
 	else if (face == FaceType::RIGHT)
-		upIndex = 5;
+		return pattern[5];
 	else if (face == FaceType::BACK)
-		upIndex = 1;
+		return pattern[1];
 	else // LEFT
-		upIndex = 3;
-	return futureCube->getFace(face)->getColorAt(upIndex) == getTargetEdgeColorOf(face, pattern);
+		return pattern[3];
 }
 
 bool AI::isEdgeInTopLayer(FaceType face, Color color)
@@ -454,18 +499,6 @@ bool AI::isEdgeInBottomLayer(FaceType face, Color color)
 		break;
 	}
 	return (futureCube->getFace(FaceType::DOWN)->getColorAt(downSquare) == color || futureCube->getFace(face)->getColorAt(edgeSquare) == color);
-}
-
-Color AI::getTargetEdgeColorOf(FaceType face, Color pattern[9])
-{
-	if (face == FaceType::FRONT)
-		return pattern[7];
-	else if (face == FaceType::RIGHT)
-		return pattern[5];
-	else if (face == FaceType::BACK)
-		return pattern[1];
-	else // LEFT
-		return pattern[3];
 }
 
 bool AI::isEdgeFlipped(FaceType face, Color color)
