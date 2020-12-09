@@ -23,7 +23,7 @@
 #include "Shader.h"
 
 App::App(CubeManager* cubemngr, AI& ai)
- : cubemngr(cubemngr), ai(ai), modelRotSpeed(0.2f), fps(0) {
+ : cubemngr(cubemngr), ai(ai), fps(0) {
 
     // seed RNG
     srand(static_cast<unsigned int>(time(0)));
@@ -89,8 +89,6 @@ App::App(CubeManager* cubemngr, AI& ai)
         glm::vec3(0, 0, 0), // and looks at the origin
         glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
     );
-    // Model matrix : an identity matrix (model will be at the origin)
-    Model = glm::mat4(1.0f);
 
     // generate 1 buffer name (an ID) and store it at &vertexbuffer
     glGenBuffers(1, &vertexbuffer);
@@ -140,7 +138,7 @@ void App::loop() {
         deltaTime = float(currentTime - lastTime);
         fps = 1 / deltaTime;
 
-        Model = glm::rotate(Model, modelRotSpeed * deltaTime, glm::vec3(0, 1, 0));
+        Model = cubemngr->cube->model;
         // Our ModelViewProjection : multiplication of our 3 matrices
         glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
@@ -152,7 +150,7 @@ void App::loop() {
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
         // update vertex buffer data
-        cubemngr->cube->updateVertexData(g_vertex_buffer_data);
+        cubemngr->cube->getVertexData(g_vertex_buffer_data);
         // 1st attribute buffer : vertices
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); // bind buffer to be modified next
@@ -167,7 +165,7 @@ void App::loop() {
         );
 
         // update color vertex buffer data
-        cubemngr->cube->updateColorData(g_color_buffer_data);
+        cubemngr->cube->getColorData(g_color_buffer_data);
         // 2nd attribute buffer : colors
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
@@ -205,11 +203,11 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
     App* app = (App*)glfwGetWindowUserPointer(window);
 
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // rotate model left
-        app->modelRotSpeed = 2.0f;
+        app->cubemngr->cube->modelRotSpeed = 2.0f;
     } else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // rotate model right
-        app->modelRotSpeed = -2.0f;
+        app->cubemngr->cube->modelRotSpeed = -2.0f;
     } else if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && action == GLFW_RELEASE) {
-        app->modelRotSpeed = 0;
+        app->cubemngr->cube->modelRotSpeed = 0;
     } else if (key == GLFW_KEY_M && action == GLFW_PRESS) {
         app->cubemngr->cube->solveSpeed += 0.5f;
     } else if (key == GLFW_KEY_N && action == GLFW_PRESS) {

@@ -103,7 +103,7 @@ bool CubeInstruction::operator==(const CubeInstruction& other) const {
 }
 
 Cube::Cube(Color squares[54])
-	: solveSpeed(1.3f) {
+	: model(1.0f), modelRotSpeed(0.2f), solveSpeed(1.3f) {
 	for (int i = 0; i < 6; i++) { // for each face
 		Color colors[9] = { squares[i * 9 + 0], squares[i * 9 + 1], squares[i * 9 + 2], squares[i * 9 + 3], squares[i * 9 + 4], squares[i * 9 + 5], squares[i * 9 + 6], squares[i * 9 + 7], squares[i * 9 + 8], };
 		faces[i] = Face(colors);
@@ -112,12 +112,17 @@ Cube::Cube(Color squares[54])
 }
 
 Cube::Cube(Cube* other) 
-	: solveSpeed(1.3f) {
+	: model(1.0f), modelRotSpeed(0.2f), solveSpeed(1.3f) {
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 9; j++) {
 			faces[i].setColorAt(j, other->faces[i].getColorAt(j));
 		}
 	}
+}
+
+void Cube::update(float deltatime) {
+	// rotate model
+	model = glm::rotate(model, modelRotSpeed * deltatime, glm::vec3(0, 1, 0));
 }
 
 void Cube::scramble() {
@@ -214,7 +219,7 @@ void Cube::print() const {
 	}
 }
 
-void Cube::updateVertexData(GLfloat vertex_buffer_data[]) const {
+void Cube::getVertexData(GLfloat vertex_buffer_data[]) const {
 	for (int i = 0; i < 6; i++) { // for each face
 		for (int j = 0; j < 9; j++) { // for each square
 			for (int k = 0; k < 6; k++) { // for each vertex
@@ -226,7 +231,7 @@ void Cube::updateVertexData(GLfloat vertex_buffer_data[]) const {
 	}
 }
 
-void Cube::updateColorData(GLfloat color_buffer_data[]) const {
+void Cube::getColorData(GLfloat color_buffer_data[]) const {
 	for (int i = 0; i < 6; i++) { // for each face
 		for (int j = 0; j < 9; j++) { // for each square
 			glm::vec3 color;

@@ -14,6 +14,7 @@ CubeManager::~CubeManager() {
 }
 
 void CubeManager::update(float deltatime) {
+	cube->update(deltatime);
 	if (queue.size() > 0) {
 		if (queue[0]->execute(deltatime, cube)) { // if rotation was completed
 			queue.erase(queue.begin()); // remove the current instruction

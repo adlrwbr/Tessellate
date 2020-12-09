@@ -19,6 +19,8 @@ class Cube {
 private:
 	Face faces[6]; // Front, Up, Back, Down, Left, Right
 public:
+	glm::mat4 model; // model to world transformation matrix
+	float modelRotSpeed; // how fast the cube rotates on Y axis
 	float solveSpeed; // how fast a face rotates
 public:
 
@@ -27,15 +29,17 @@ public:
 	/* copy constructor */
 	Cube(Cube* other);
 
+	void update(float deltatime);
+
 	void scramble();
 
 	void print() const;
 
 	/* when supplied an array, inserts current vertices into array */
-	void updateVertexData(GLfloat vertex_buffer_data[]) const;
+	void getVertexData(GLfloat vertex_buffer_data[]) const;
 
 	/* when supplied an array, inserts the colors of vertices into array */
-	void updateColorData(GLfloat color_buffer_data[]) const;
+	void getColorData(GLfloat color_buffer_data[]) const;
 
 	/* returns a pointer to the specified facetype */
 	Face* getFace(FaceType type);
