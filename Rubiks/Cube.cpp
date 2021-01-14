@@ -10,100 +10,57 @@
 #include "Cube.h"
 
 
-FaceInstruction::FaceInstruction(FaceType face, bool clockwise)
-	: face(face), clockwise(clockwise) {}
+Cube::Cube() 
+	: model(1.0f), modelRotSpeed(0.0f), solveSpeed(1.3f), position(0, 0, 0) {
+	
+	// standard cube layout
+	static Color standard[54] = {
+		Color::GREEN, Color::GREEN, Color::GREEN,
+		Color::GREEN, Color::GREEN, Color::GREEN,
+		Color::GREEN, Color::GREEN, Color::GREEN,
 
-bool FaceInstruction::execute(float deltatime, Cube* cube) const {
-	return cube->rotate(face, cube->solveSpeed * deltatime, clockwise);
-}
+		Color::WHITE, Color::WHITE, Color::WHITE,
+		Color::WHITE, Color::WHITE, Color::WHITE,
+		Color::WHITE, Color::WHITE, Color::WHITE,
 
-bool FaceInstruction::executeInstantly(Cube* cube) const {
-	return cube->rotate(face, glm::half_pi<float>(), clockwise);
-}
+		Color::BLUE, Color::BLUE, Color::BLUE,
+		Color::BLUE, Color::BLUE, Color::BLUE,
+		Color::BLUE, Color::BLUE, Color::BLUE,
 
-void FaceInstruction::print() const {
-	char faceLetter{};
-	switch (face) {
-	case FaceType::FRONT:
-		faceLetter = 'F';
-		break;
-	case FaceType::UP:
-		faceLetter = 'U';
-		break;
-	case FaceType::BACK:
-		faceLetter = 'B';
-		break;
-	case FaceType::DOWN:
-		faceLetter = 'D';
-		break;
-	case FaceType::LEFT:
-		faceLetter = 'L';
-		break;
-	case FaceType::RIGHT:
-		faceLetter = 'R';
-		break;
+		Color::YELLOW, Color::YELLOW, Color::YELLOW,
+		Color::YELLOW, Color::YELLOW, Color::YELLOW,
+		Color::YELLOW, Color::YELLOW, Color::YELLOW,
+
+		Color::ORANGE, Color::ORANGE, Color::ORANGE,
+		Color::ORANGE, Color::ORANGE, Color::ORANGE,
+		Color::ORANGE, Color::ORANGE, Color::ORANGE,
+
+		Color::RED, Color::RED, Color::RED,
+		Color::RED, Color::RED, Color::RED,
+		Color::RED, Color::RED, Color::RED
+	};
+
+	// copy initial colors
+	for (int i = 0; i < 54; i++)
+		initialSqColors[i] = standard[i];
+
+	// create faces
+	for (int i = 0; i < 6; i++) { // for each face
+		Color colors[9] = { standard[i * 9 + 0], standard[i * 9 + 1], standard[i * 9 + 2], standard[i * 9 + 3], standard[i * 9 + 4], standard[i * 9 + 5], standard[i * 9 + 6], standard[i * 9 + 7], standard[i * 9 + 8], };
+		faces[i] = Face(colors);
 	}
-	std::cout << faceLetter << (clockwise ? "" : "'");
-}
 
-bool FaceInstruction::isFaceInstruction() const
-{
-	return true;
-}
-
-FaceType FaceInstruction::getFace() const
-{
-	return face;
-}
-
-bool FaceInstruction::isClockwise() const
-{
-	return clockwise;
-}
-
-void FaceInstruction::setDirection(bool clockwise) {
-	this->clockwise = clockwise;
-}
-
-bool FaceInstruction::operator==(const FaceInstruction& other) const {
-	return face == other.face && clockwise == other.clockwise;
-}
-
-CubeInstruction::CubeInstruction(glm::vec3 axis)
-	: axis(axis) {}
-
-bool CubeInstruction::execute(float deltatime, Cube* cube) const {
-	return cube->rotate(axis, cube->solveSpeed * deltatime);
-}
-
-bool CubeInstruction::executeInstantly(Cube* cube) const {
-	return cube->rotate(axis, glm::half_pi<float>());
-}
-
-void CubeInstruction::print() const {
-	char axisNotation{};
-	if (axis[0] == 1 || axis[0] == -1)
-		axisNotation = 'x';
-	else if (axis[1] == 1 || axis[1] == -1)
-		axisNotation = 'y';
-	else if (axis[2] == 1 || axis[2] == -1)
-		axisNotation = 'z';
-	else
-		axisNotation = '-';
-	std::cout << axisNotation << (axis[0] + axis[1] + axis[2] < 0 ? "'" : "");
-}
-
-bool CubeInstruction::isFaceInstruction() const
-{
-	return false;
-}
-
-bool CubeInstruction::operator==(const CubeInstruction& other) const {
-	return axis == other.axis;
+	generateVertices();
 }
 
 Cube::Cube(Color squares[54])
-	: model(1.0f), modelRotSpeed(0.2f), solveSpeed(1.3f) {
+	: model(1.0f), modelRotSpeed(0.0f), solveSpeed(1.3f), position(0, 0, 0) {
+
+	// copy initial colors
+	for (int i = 0; i < 54; i++)
+		initialSqColors[i] = squares[i];
+
+	// create faces
 	for (int i = 0; i < 6; i++) { // for each face
 		Color colors[9] = { squares[i * 9 + 0], squares[i * 9 + 1], squares[i * 9 + 2], squares[i * 9 + 3], squares[i * 9 + 4], squares[i * 9 + 5], squares[i * 9 + 6], squares[i * 9 + 7], squares[i * 9 + 8], };
 		faces[i] = Face(colors);
@@ -112,7 +69,13 @@ Cube::Cube(Color squares[54])
 }
 
 Cube::Cube(Cube* other) 
-	: model(1.0f), modelRotSpeed(0.2f), solveSpeed(1.3f) {
+	: model(other->model), modelRotSpeed(other->modelRotSpeed), solveSpeed(other->solveSpeed), position(0, 0, 0) {
+	
+	// copy initial colors
+	for (int i = 0; i < 54; i++)
+		initialSqColors[i] = other->initialSqColors[i];
+
+	// copy face colors
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 9; j++) {
 			faces[i].setColorAt(j, other->faces[i].getColorAt(j));
@@ -121,6 +84,12 @@ Cube::Cube(Cube* other)
 }
 
 void Cube::update(float deltatime) {
+	// update pending instruction
+	if (queue.size() > 0) {
+		if (perform(queue[0].get(), deltatime)) // if rotation was completed
+			queue.erase(queue.begin()); // remove the current instruction
+	}
+
 	// rotate model
 	model = glm::rotate(model, modelRotSpeed * deltatime, glm::vec3(0, 1, 0));
 }
@@ -131,7 +100,7 @@ void Cube::scramble() {
 	for (int i = 0; i < 1000; i++) {
 		randFace = static_cast<FaceType>(rand() % 6);
 		randDirection = rand() % 2;
-		rotateColors(randFace, randDirection);
+		rotateColors(randFace, randDirection); // to-do: replace with instructions
 	}
 }
 
@@ -219,6 +188,25 @@ void Cube::print() const {
 	}
 }
 
+void Cube::reset() {
+	// clear queue
+	queue.clear();
+	// generate new vertices
+	generateVertices();
+	// revert to original colors
+	for (int i = 0; i < 6; i++) { // for each face
+		for (int j = 0; j < 9; j++) // for each square
+			faces[i].setColorAt(j, initialSqColors[i * 9 + j]);
+	}
+}
+
+/* returns a pointer to the specified facetype */
+
+Face* Cube::getFace(FaceType type)
+{
+	return &faces[static_cast<int>(type)];
+}
+
 void Cube::getVertexData(GLfloat vertex_buffer_data[]) const {
 	for (int i = 0; i < 6; i++) { // for each face
 		for (int j = 0; j < 9; j++) { // for each square
@@ -267,9 +255,35 @@ void Cube::getColorData(GLfloat color_buffer_data[]) const {
 	}
 }
 
-Face* Cube::getFace(FaceType type)
+bool Cube::perform(Instruction* instptr, float deltatime) {
+	// if dt is 0, perform instantly
+	if (instptr->isFaceInstruction()) {
+		FaceInstruction& inst = *static_cast<FaceInstruction*>(instptr);
+		if (deltatime)
+			return rotate(inst.getFace(), solveSpeed * deltatime, inst.isClockwise());
+		else
+			return rotate(inst.getFace(), glm::half_pi<float>(), inst.isClockwise());
+	} else {
+		CubeInstruction& inst = *static_cast<CubeInstruction*>(instptr);
+		if (deltatime)
+			return rotate(inst.getAxis(), solveSpeed * deltatime);
+		else
+			return rotate(inst.getAxis(), glm::half_pi<float>());
+	}
+}
+
+void Cube::addToQueue(std::shared_ptr<Instruction>& instruction) {
+	queue.push_back(instruction);
+}
+
+size_t Cube::getQueueSize() const
 {
-	return &faces[static_cast<int>(type)];
+	return queue.size();
+}
+
+void Cube::translate(glm::vec3 dv) {
+	position += dv;
+	model = glm::translate(model, dv);
 }
 
 void Cube::swapVertices(glm::vec3* v1[], glm::vec3* v2[], size_t length) {
@@ -295,7 +309,7 @@ void Cube::swapColors(Square* s1[], Square* s2[], size_t length) {
 void Cube::generateVertices() {
 	using namespace glm;
 
-	std::cout << "generating vertices..." << std::endl;
+	// std::cout << "generating vertices..." << std::endl;
 
 	float x = -1.5;
 	float y = 1.5;
@@ -685,5 +699,3 @@ void Cube::snapVertices() {
 		}
 	}
 }
-
-Instruction::Instruction() {}

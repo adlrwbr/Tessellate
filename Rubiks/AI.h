@@ -4,12 +4,11 @@
 #include <memory>
 
 #include "Cube.h"
-#include "CubeManager.h"
 
 class AI {
 private:
 	/* only start() is allowed to touch the displayed cube */
-	CubeManager* cubemngr;
+	Cube* cube;
 
 	std::vector<std::shared_ptr<Instruction>> instructions;
 
@@ -17,11 +16,12 @@ private:
 	Cube* futureCube;
 	
 public:
-	AI(CubeManager* cubemngr);
+	AI(Cube* cube);
 	~AI();
 
 	/* generates the instructions to rotate the cube in order to achieve the supplied pattern on the UP face */
 	void calculatePaint(Color pattern[9]);
+
 	/* adds instruction set to the cube's queue */
 	void start();
 private:

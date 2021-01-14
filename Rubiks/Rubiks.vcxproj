@@ -152,9 +152,11 @@
   <ItemGroup>
     <ClCompile Include="AI.cpp" />
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="BMPImage.cpp" />
     <ClCompile Include="Cube.cpp" />
-    <ClCompile Include="CubeManager.cpp" />
+    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Face.cpp" />
+    <ClCompile Include="Instruction.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Square.cpp" />
@@ -163,8 +165,10 @@
     <ClInclude Include="AI.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="Cube.h" />
-    <ClInclude Include="CubeManager.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="Face.h" />
+    <ClInclude Include="BMPImage.h" />
+    <ClInclude Include="Instruction.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Square.h" />
   </ItemGroup>

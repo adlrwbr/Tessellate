@@ -1,11 +1,11 @@
 #include "Cube.h"
 #include "AI.h"
-#include "CubeManager.h"
+#include "Grid.h"
 
 class App {
 private:
 	GLFWwindow* window;
-	CubeManager* cubemngr;
+	Grid* grid;
 	AI ai;
 	/* handle for the shaders */
 	GLuint programID;
@@ -14,7 +14,6 @@ private:
 	GLuint MatrixID;
 	glm::mat4 Projection;
 	glm::mat4 View;
-	glm::mat4 Model;
 	/* vertices */
 	GLfloat g_vertex_buffer_data[3 * 3 * 2 * 9 * 6]; // 3 components that make up one vertex * 3 vertices that make up one triangle * 2 triangles that make up one square * 9 squares * 6 faces
 	/* colors */
@@ -24,12 +23,16 @@ private:
 	GLuint colorbuffer;
 	float fps;
 public:
-	App(CubeManager* cubemngr, AI& ai);
+	App(Grid* grid, AI& ai);
 	~App();
 	
 	void start();
 
 	void loop();
+
+	/* update all relevant objects */
+	void update(float deltatime);
+
 	/* callback function on key down 
 	   Needed to make static. Why? When it isn't static, its signature looks like:
 	   func(void* this, GLFWwindow* window, ...). However, glfwSetKeyCallback wants 

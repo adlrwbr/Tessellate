@@ -3,8 +3,8 @@
 #include <iostream>
 #include <typeinfo>
 
-AI::AI(CubeManager* cubemngr)
-	: cubemngr(cubemngr), futureCube(new Cube(cubemngr->cube)) {}
+AI::AI(Cube* cube)
+	: cube(cube), futureCube(new Cube(cube)) {}
 
 AI::~AI() {
 	delete futureCube;
@@ -16,15 +16,15 @@ void AI::calculatePaint(Color pattern[9]) {
 
 	// create copy of the displayed cube
 	delete futureCube;
-	futureCube = new Cube(cubemngr->cube);
+	futureCube = new Cube(cube);
 
 	// algorithm to "paint" top face
-	if (cubemngr->getQueueSize() == 0) {
+	if (cube->getQueueSize() == 0) {
 
 		// rotate so that center is on top
 		rotateToTopCenter(pattern[4]);
 
-		static const FaceType const faces_on_xz[4] = { FaceType::FRONT, FaceType::RIGHT, FaceType::BACK, FaceType::LEFT };
+		static const FaceType faces_on_xz[4] = { FaceType::FRONT, FaceType::RIGHT, FaceType::BACK, FaceType::LEFT };
 
 		// get all correct edges in top layer
 		int loopcounter = 0; // to-do: debug only. Delete me.
@@ -217,7 +217,7 @@ void AI::calculatePaint(Color pattern[9]) {
 				addInstruction(instruction3);
 			}
 		}
-		// verify pattern is correct
+		/*// verify pattern is correct
 		bool match = true;
 		for (int j = 0; j < 9; j++) {
 			if (futureCube->getFace(static_cast<FaceType>(FaceType::UP))->getColorAt(j) != pattern[j]) {
@@ -227,11 +227,11 @@ void AI::calculatePaint(Color pattern[9]) {
 		}
 		std::cout << "UP " << (match ? "matches" : "DOES NOT MATCH") << " the pattern" << std::endl;
 		if (!match)
-			cubemngr->cube->print();
+			cube->print();
 
 		// simplify instruction set
 		std::cout << "simplification: " << '\n';
-		printInstructions();
+		printInstructions();*/
 		simplifyInstructions(instructions);
 
 	}
@@ -239,15 +239,14 @@ void AI::calculatePaint(Color pattern[9]) {
 }
 
 void AI::start() {
-	printInstructions();
 	for (std::shared_ptr<Instruction>& instruction : instructions) { // use the & to avoid copying the instruction objects into the scope
-		cubemngr->addToQueue(instruction);
+		cube->addToQueue(instruction);
 	}
 	instructions.clear();
 }
 
 void AI::addInstruction(std::shared_ptr<Instruction>& instruction) {
-	instruction->executeInstantly(futureCube); // execute the instruction on the futureCube
+	futureCube->perform(instruction.get(), 0); // perform the instruction instantly on futureCube
 	instructions.push_back(instruction);
 }
 
@@ -256,14 +255,14 @@ void AI::simplifyInstructions(std::vector<std::shared_ptr<Instruction>>& instruc
 	bool simplified = false; // becomes true if a simplification occurred
 
 	// for each instruction
-	for (int i = 0; i < instructions.size(); i++) {
+	for (int i = 0; i < static_cast<int>(instructions.size()); i++) {
 		std::shared_ptr<Instruction>& inst = instructions[i];
 		
 		// simplify face instructions
 		if (inst.get()->isFaceInstruction()) {
 
 			// remove unnecessary rotations ex. FFFF
-			if (i + 3 < instructions.size()
+			if (i + 3 < static_cast<int>(instructions.size())
 				&& instructions[i + 1].get()->isFaceInstruction()
 				&& instructions[i + 2].get()->isFaceInstruction()
 				&& instructions[i + 3].get()->isFaceInstruction()
@@ -278,7 +277,7 @@ void AI::simplifyInstructions(std::vector<std::shared_ptr<Instruction>>& instruc
 
 
 			// remove opposing face instructions ex. FF'
-			} else if (i + 1 < instructions.size() && instructions[i + 1].get()->isFaceInstruction()
+			} else if (i + 1 < static_cast<int>(instructions.size()) && instructions[i + 1].get()->isFaceInstruction()
 				&& static_cast<FaceInstruction*>(inst.get())->getFace() == static_cast<FaceInstruction*>(instructions[i + 1].get())->getFace()
 				&& static_cast<FaceInstruction*>(inst.get())->isClockwise() != static_cast<FaceInstruction*>(instructions[i + 1].get())->isClockwise()
 				) {
@@ -287,7 +286,7 @@ void AI::simplifyInstructions(std::vector<std::shared_ptr<Instruction>>& instruc
 				simplified = true;
 
 			// optimize inefficient face instructions ex. FFF -> F'
-			} else if (i + 2 < instructions.size()
+			} else if (i + 2 < static_cast<int>(instructions.size())
 				&& instructions[i + 1].get()->isFaceInstruction()
 				&& instructions[i + 2].get()->isFaceInstruction()
 				&& *static_cast<FaceInstruction*>(inst.get()) == *static_cast<FaceInstruction*>(instructions[i + 1].get())

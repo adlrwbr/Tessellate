@@ -7,23 +7,26 @@
 #include <glm/gtc/constants.hpp>
 
 #include "Face.h"
-
-enum class FaceType {
-	FRONT, UP, BACK, DOWN, LEFT, RIGHT
-};
-
+#include "Instruction.h"
 
 class Cube {
 	friend class FaceInstruction; // so that an instruction can execute rotate() by itself
 	friend class CubeInstruction;
 private:
+	Color initialSqColors[54];
 	Face faces[6]; // Front, Up, Back, Down, Left, Right
+	std::vector<std::shared_ptr<Instruction>> queue; // pending instructions - to-do: should these be unique instead of shared?
+	glm::vec3 position;
 public:
 	glm::mat4 model; // model to world transformation matrix
 	float modelRotSpeed; // how fast the cube rotates on Y axis
 	float solveSpeed; // how fast a face rotates
 public:
 
+	/* standard colors */
+	Cube();
+
+	/* custom colors */
 	Cube(Color squares[54]);
 
 	/* copy constructor */
@@ -35,14 +38,30 @@ public:
 
 	void print() const;
 
+	void reset();
+
+	/* returns a pointer to the specified facetype */
+	Face* getFace(FaceType type);
+
 	/* when supplied an array, inserts current vertices into array */
 	void getVertexData(GLfloat vertex_buffer_data[]) const;
 
 	/* when supplied an array, inserts the colors of vertices into array */
 	void getColorData(GLfloat color_buffer_data[]) const;
 
-	/* returns a pointer to the specified facetype */
-	Face* getFace(FaceType type);
+	/* increments a given instruction, returns true when completed.
+	* If deltatime == 0, performs instantly
+	*/
+	bool perform(Instruction* instptr, float deltatime);
+
+	/* appends instruction to the queue */
+	void addToQueue(std::shared_ptr<Instruction>& instruction);
+
+	/* returns the number of pending instructions in the queue */
+	size_t getQueueSize() const;
+
+	/* translate graphical cube */
+	void translate(glm::vec3 dv);
 
 private:
 	void generateVertices();
@@ -75,44 +94,4 @@ private:
 
 	/* when supplied two or more square pointers, this will swap the colors at those pointers */
 	static void swapColors(Square* s1[], Square* s2[], size_t length);
-};
-
-class Instruction {
-protected:
-	Instruction(); // ban default constructor
-public:
-	virtual bool execute(float deltatime, Cube* cube) const = 0;
-	/* executes the instruction instantly. Ex. instantly rotates 90 degrees instead of slowly */
-	virtual bool executeInstantly(Cube* cube) const = 0;
-	virtual void print() const = 0;
-	virtual bool isFaceInstruction() const = 0;
-};
-
-class FaceInstruction : public Instruction {
-protected:
-	FaceType face;
-	bool clockwise;
-public:
-	FaceInstruction(FaceType face, bool clockwise = true);
-	bool execute(float deltatime, Cube* cube) const;
-	bool executeInstantly(Cube* cube) const;
-	void print() const;
-	bool isFaceInstruction() const;
-	FaceType getFace() const;
-	bool isClockwise() const;
-	void setDirection(bool clockwise);
-	bool operator==(const FaceInstruction& other) const;
-};
-
-
-class CubeInstruction : public Instruction {
-protected:
-	glm::vec3 axis;
-public:
-	CubeInstruction(glm::vec3 axis);
-	bool execute(float deltatime, Cube* cube) const;
-	bool executeInstantly(Cube* cube) const;
-	void print() const;
-	bool isFaceInstruction() const;
-	bool operator==(const CubeInstruction& other) const;
 };

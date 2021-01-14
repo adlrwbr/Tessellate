@@ -21,9 +21,10 @@
 
 #include "App.h"
 #include "Shader.h"
+#include "BMPImage.h"
 
-App::App(CubeManager* cubemngr, AI& ai)
- : cubemngr(cubemngr), ai(ai), fps(0) {
+App::App(Grid* grid, AI& ai)
+ : grid(grid), ai(ai), fps(0) {
 
     // seed RNG
     srand(static_cast<unsigned int>(time(0)));
@@ -41,7 +42,7 @@ App::App(CubeManager* cubemngr, AI& ai)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // use glfw core profile
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(1024, 768, "Rubik's Cube", NULL, NULL);
+    window = glfwCreateWindow(1024, 800, "Rubik's Cube", NULL, NULL);
     if (window == NULL) {
         throw std::runtime_error("Failed to open GLFW window\n");
     }
@@ -82,11 +83,11 @@ App::App(CubeManager* cubemngr, AI& ai)
     MatrixID = glGetUniformLocation(programID, "MVP");
 
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+    Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
     // Camera matrix
     View = glm::lookAt(
-        glm::vec3(4, 3, 5), // Camera position in World Space
-        glm::vec3(0, 0, 0), // and looks at the origin
+        glm::vec3(0, 110, 5),//glm::vec3(25, 10, 20), // Camera position in World Space
+        glm::vec3(0, 0, 0), // and looks at the origin. to-do: focus on specific cubes in grid
         glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
     );
 
@@ -135,55 +136,56 @@ void App::loop() {
         // get delta time and fps
         lastTime = currentTime;
         currentTime = glfwGetTime();
-        deltaTime = float(currentTime - lastTime);
+        deltaTime = .1;// float(currentTime - lastTime);
         fps = 1 / deltaTime;
 
-        Model = cubemngr->cube->model;
-        // Our ModelViewProjection : multiplication of our 3 matrices
-        glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
+        // main update function
+        update(deltaTime);
+        
+        for (int i = 0; i < grid->cubes.size(); i++) { // for each cube
 
-        // turn cube
-        cubemngr->update(deltaTime);
+            glm::mat4 MVP = Projection * View * grid->cubes[i]->model; // Remember, matrix multiplication is the other way around
+            // Send our transformation to the currently bound shader, 
+            // in the "MVP" uniform
+            glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        // Send our transformation to the currently bound shader, 
-        // in the "MVP" uniform
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+            // update vertex buffer data
+            grid->cubes[i]->getVertexData(g_vertex_buffer_data);
+            // 1st attribute buffer : vertices
+            glEnableVertexAttribArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); // bind buffer to be modified next
+            glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_DYNAMIC_DRAW); // modify data
+            glVertexAttribPointer(
+                0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
+                3,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+            );
 
-        // update vertex buffer data
-        cubemngr->cube->getVertexData(g_vertex_buffer_data);
-        // 1st attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); // bind buffer to be modified next
-        glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_DYNAMIC_DRAW); // modify data
-        glVertexAttribPointer(
-            0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-        );
+            // update color vertex buffer data
+            grid->cubes[i]->getColorData(g_color_buffer_data);
+            // 2nd attribute buffer : colors
+            glEnableVertexAttribArray(1);
+            glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_DYNAMIC_DRAW);
+            glVertexAttribPointer(
+                1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+                3,                                // size
+                GL_FLOAT,                         // type
+                GL_FALSE,                         // normalized?
+                0,                                // stride
+                (void*)0                          // array buffer offset
+            );
 
-        // update color vertex buffer data
-        cubemngr->cube->getColorData(g_color_buffer_data);
-        // 2nd attribute buffer : colors
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(
-            1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-            3,                                // size
-            GL_FLOAT,                         // type
-            GL_FALSE,                         // normalized?
-            0,                                // stride
-            (void*)0                          // array buffer offset
-        );
-
-        // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, 3 * 2 * 9 * 6); // 3 * 2 * 9 * 6 total vertices
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+            // draw
+            glDrawArrays(GL_TRIANGLES, 0, 3 * 2 * 9 * 6); // 3 * 2 * 9 * 6 total vertices
+            
+            // disable vertices and colors
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+        }
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -197,31 +199,39 @@ void App::loop() {
     }
 }
 
+void App::update(float deltatime) {
+    grid->update(deltatime);
+}
+
 void App::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     
     // Query for window user pointer (the app instance)
     App* app = (App*)glfwGetWindowUserPointer(window);
 
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // rotate model left
-        app->cubemngr->cube->modelRotSpeed = 2.0f;
+        app->grid->cubes[0]->modelRotSpeed = 2.0f;
     } else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // rotate model right
-        app->cubemngr->cube->modelRotSpeed = -2.0f;
+        app->grid->cubes[0]->modelRotSpeed = -2.0f;
     } else if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && action == GLFW_RELEASE) {
-        app->cubemngr->cube->modelRotSpeed = 0;
+        app->grid->cubes[0]->modelRotSpeed = 0;
     } else if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        app->cubemngr->cube->solveSpeed += 0.5f;
+        app->grid->cubes[0]->solveSpeed += 0.5f;
     } else if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-        app->cubemngr->cube->solveSpeed -= 0.5f;
+        app->grid->cubes[0]->solveSpeed -= 0.5f;
     } else if (key == GLFW_KEY_F && action == GLFW_PRESS) {
         std::cout << app->fps << std::endl;
     } else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-        app->cubemngr->cube->print();
+        app->grid->cubes[0]->print();
     }
 
     if (key == GLFW_KEY_S && action == GLFW_PRESS) { // scramble cube
-        app->cubemngr->cube->scramble();
+        app->grid->cubes[0]->scramble();
     } else if (key == GLFW_KEY_R && action == GLFW_PRESS) { // reset cube
-        app->cubemngr->resetCube();
+        app->grid->reset();
+    } else if (key == GLFW_KEY_O && action == GLFW_PRESS) { // paint grid
+        BMPImage bmp("../Dependencies/images/output.bmp");
+        bmp.getHeight();
+        app->grid->solveImage(bmp);
     } else if (key == GLFW_KEY_P && action == GLFW_PRESS) { // paint cube
         // by the time this goes out of scope it is no longer needed
         Color paintPattern[9] = { Color::BLUE,   Color::WHITE,   Color::GREEN,
@@ -231,12 +241,12 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
         app->ai.start();
     } else if (key == GLFW_KEY_X && action == GLFW_PRESS) { // rotate cube across x axis
         std::shared_ptr<Instruction> instruction = std::make_shared<CubeInstruction>(glm::vec3(1, 0, 0));
-        app->cubemngr->addToQueue(instruction);
+        app->grid->cubes[0]->addToQueue(instruction);
     } else if (key == GLFW_KEY_Y && action == GLFW_PRESS) { // rotate cube across y axis
         std::shared_ptr<Instruction> instruction = std::make_shared<CubeInstruction>(glm::vec3(0, 1, 0));
-        app->cubemngr->addToQueue(instruction);
+        app->grid->cubes[0]->addToQueue(instruction);
     } else if (key == GLFW_KEY_Z && action == GLFW_PRESS) { // rotate cube across z axis
         std::shared_ptr<Instruction> instruction = std::make_shared<CubeInstruction>(glm::vec3(0, 0, 1));
-        app->cubemngr->addToQueue(instruction);
+        app->grid->cubes[0]->addToQueue(instruction);
     }
 }

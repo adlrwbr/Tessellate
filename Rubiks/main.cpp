@@ -21,81 +21,28 @@
 #include "Cube.h"
 #include "Shader.h"
 #include "AI.h"
-#include "CubeManager.h"
+#include "Grid.h"
 
 using namespace glm;
 
-void beginInputHandler(CubeManager* cube);
+void beginInputHandler(Grid* grid);
 
 int main() {
-    // Cube patterns
-    Color custom[54] = {
-        // front
-           Color::GREEN,  Color::YELLOW,   Color::WHITE,
-           Color::GREEN,   Color::GREEN,  Color::YELLOW,
-           Color::GREEN,    Color::BLUE,   Color::WHITE,
-        // up
-           Color::WHITE,   Color::GREEN,  Color::YELLOW,
-           Color::WHITE,   Color::WHITE,    Color::BLUE,
-          Color::ORANGE,   Color::GREEN,  Color::ORANGE,
-        // back
-           Color::GREEN,  Color::ORANGE,  Color::ORANGE,
-          Color::YELLOW,    Color::BLUE,  Color::ORANGE,
-           Color::GREEN,   Color::WHITE,     Color::RED,
-        // down
-             Color::RED,     Color::RED,     Color::RED,
-          Color::YELLOW,  Color::YELLOW,     Color::RED,
-           Color::WHITE,    Color::BLUE,  Color::YELLOW,
-        // left
-             Color::RED,     Color::RED,  Color::YELLOW,
-             Color::RED,  Color::ORANGE,  Color::ORANGE,
-          Color::ORANGE,  Color::ORANGE,  Color::YELLOW,
-        // right
-            Color::BLUE,   Color::WHITE,    Color::BLUE,
-            Color::BLUE,     Color::RED,   Color::WHITE,
-            Color::BLUE,   Color::GREEN,    Color::BLUE
-    };
-    Color standard[54] = {
-        Color::GREEN, Color::GREEN, Color::GREEN,
-        Color::GREEN, Color::GREEN, Color::GREEN,
-        Color::GREEN, Color::GREEN, Color::GREEN,
-
-        Color::WHITE, Color::WHITE, Color::WHITE,
-        Color::WHITE, Color::WHITE, Color::WHITE,
-        Color::WHITE, Color::WHITE, Color::WHITE,
-
-        Color::BLUE, Color::BLUE, Color::BLUE,
-        Color::BLUE, Color::BLUE, Color::BLUE,
-        Color::BLUE, Color::BLUE, Color::BLUE,
-
-        Color::YELLOW, Color::YELLOW, Color::YELLOW,
-        Color::YELLOW, Color::YELLOW, Color::YELLOW,
-        Color::YELLOW, Color::YELLOW, Color::YELLOW,
-
-        Color::ORANGE, Color::ORANGE, Color::ORANGE,
-        Color::ORANGE, Color::ORANGE, Color::ORANGE,
-        Color::ORANGE, Color::ORANGE, Color::ORANGE,
-
-        Color::RED, Color::RED, Color::RED,
-        Color::RED, Color::RED, Color::RED,
-        Color::RED, Color::RED, Color::RED
-    };
-
-    // Create cube manager
-    CubeManager cubemngr(standard);
+    // Create grid
+    Grid grid(1, 1);
 
     // print cube
-    cubemngr.cube->print();
+    grid.cubes[0]->print();
 
     // Create AI
-    AI ai(&cubemngr);
+    AI ai(grid.cubes[0].get());
 
     // Create app
-    App app(&cubemngr, ai);
+    App app(&grid, ai);
 
     // Begin input handler
     // to-do: put graphics on separate thread and move CLI input to main thread
-    std::thread inputThread(beginInputHandler, &cubemngr);
+    std::thread inputThread(beginInputHandler, &grid);
 
     // Start app
     app.start();
@@ -104,7 +51,7 @@ int main() {
 }
 
 /* This function only handles the CLI input. See app->key_callback for GUI input. */
-void beginInputHandler(CubeManager* cubemngr) {
+void beginInputHandler(Grid* grid) {
     using namespace std;
     
     while (true) {
@@ -148,7 +95,7 @@ void beginInputHandler(CubeManager* cubemngr) {
                 commands.erase(commands.begin());
             if (!invalid) {
                 std::shared_ptr<Instruction> instruction = std::make_shared<FaceInstruction>(face, clockwise);
-                cubemngr->addToQueue(instruction);
+                grid->cubes[0]->addToQueue(instruction);
             }
         }
         cout << "Added instruction set to queue." << endl;

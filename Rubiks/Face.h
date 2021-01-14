@@ -4,6 +4,10 @@
 
 #include "Square.h"
 
+enum class FaceType {
+	FRONT, UP, BACK, DOWN, LEFT, RIGHT
+};
+
 class Face {
 public:
 	Square squares[9]; // top left, top center, top right, center left, center center, center right, bottom left, bottom center, bottom right
