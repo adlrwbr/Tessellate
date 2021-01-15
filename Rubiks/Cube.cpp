@@ -11,7 +11,7 @@
 
 
 Cube::Cube() 
-	: model(1.0f), modelRotSpeed(0.0f), solveSpeed(1.3f), position(0, 0, 0) {
+	: model(1.0f), solveSpeed(1.3f), position(0, 0, 0), selected(0) {
 	
 	// standard cube layout
 	static Color standard[54] = {
@@ -54,7 +54,7 @@ Cube::Cube()
 }
 
 Cube::Cube(Color squares[54])
-	: model(1.0f), modelRotSpeed(0.0f), solveSpeed(1.3f), position(0, 0, 0) {
+	: model(1.0f), solveSpeed(1.3f), position(0, 0, 0), selected(0) {
 
 	// copy initial colors
 	for (int i = 0; i < 54; i++)
@@ -69,7 +69,7 @@ Cube::Cube(Color squares[54])
 }
 
 Cube::Cube(Cube* other) 
-	: model(other->model), modelRotSpeed(other->modelRotSpeed), solveSpeed(other->solveSpeed), position(0, 0, 0) {
+	: model(other->model), solveSpeed(other->solveSpeed), position(0, 0, 0), selected(other->selected) {
 	
 	// copy initial colors
 	for (int i = 0; i < 54; i++)
@@ -89,9 +89,6 @@ void Cube::update(float deltatime) {
 		if (perform(queue[0].get(), deltatime)) // if rotation was completed
 			queue.erase(queue.begin()); // remove the current instruction
 	}
-
-	// rotate model
-	model = glm::rotate(model, modelRotSpeed * deltatime, glm::vec3(0, 1, 0));
 }
 
 void Cube::scramble() {
@@ -281,9 +278,29 @@ size_t Cube::getQueueSize() const
 	return queue.size();
 }
 
+glm::vec3 Cube::getPosition() const {
+	return position;
+}
+
 void Cube::translate(glm::vec3 dv) {
 	position += dv;
 	model = glm::translate(model, dv);
+}
+
+bool Cube::isSelected() const {
+	return selected;
+}
+
+void Cube::select() {
+	selected = true;
+	translate(glm::vec3(0, 10, 0)); // translate up
+}
+
+void Cube::deselect() {
+	if (selected) {
+		selected = false;
+		translate(glm::vec3(0, -10, 0)); // translate down
+	}
 }
 
 void Cube::swapVertices(glm::vec3* v1[], glm::vec3* v2[], size_t length) {
@@ -331,7 +348,7 @@ void Cube::generateVertices() {
 		}
 	}
 
-	// generate other faces' vertices by rotating the front face's vertices around the world origin
+	// generate other faces' vertices by rotating the front face's vertices around the model origin
 	for (int i = 0; i < 9; i++) { // for each square
 		for (int j = 0; j < 6; j++) { // for each vertex
 			// begin with identity matrix at 0, 0, 0

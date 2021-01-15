@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <functional> // for std::ref
 #include <time.h> // for seeding rng
+#include <algorithm>
 
 // include GLEW
 #define GLEW_STATIC
@@ -22,9 +23,10 @@
 #include "App.h"
 #include "Shader.h"
 #include "BMPImage.h"
+#include "AI.h"
 
-App::App(Grid* grid, AI& ai)
- : grid(grid), ai(ai), fps(0) {
+App::App(Grid* grid)
+ : grid(grid), camera(glm::vec3(4, 40, 6), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)), fps(0) { // 0, 110, 5
 
     // seed RNG
     srand(static_cast<unsigned int>(time(0)));
@@ -84,12 +86,6 @@ App::App(Grid* grid, AI& ai)
 
     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
     Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 1000.0f);
-    // Camera matrix
-    View = glm::lookAt(
-        glm::vec3(0, 110, 5),//glm::vec3(25, 10, 20), // Camera position in World Space
-        glm::vec3(0, 0, 0), // and looks at the origin. to-do: focus on specific cubes in grid
-        glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-    );
 
     // generate 1 buffer name (an ID) and store it at &vertexbuffer
     glGenBuffers(1, &vertexbuffer);
@@ -126,6 +122,7 @@ void App::loop() {
     float deltaTime;
 
     /* Loop until the user closes the window */
+    // to-do: render on a separate thread than calculations
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window)) {
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -141,10 +138,10 @@ void App::loop() {
 
         // main update function
         update(deltaTime);
-        
+
         for (int i = 0; i < grid->cubes.size(); i++) { // for each cube
 
-            glm::mat4 MVP = Projection * View * grid->cubes[i]->model; // Remember, matrix multiplication is the other way around
+            glm::mat4 MVP = Projection * camera.view * grid->cubes[i]->model; // Remember, matrix multiplication is the other way around
             // Send our transformation to the currently bound shader, 
             // in the "MVP" uniform
             glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
@@ -201,52 +198,101 @@ void App::loop() {
 
 void App::update(float deltatime) {
     grid->update(deltatime);
+    camera.update(deltatime);
 }
 
 void App::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    
+
     // Query for window user pointer (the app instance)
     App* app = (App*)glfwGetWindowUserPointer(window);
 
-    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // rotate model left
-        app->grid->cubes[0]->modelRotSpeed = 2.0f;
-    } else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // rotate model right
-        app->grid->cubes[0]->modelRotSpeed = -2.0f;
-    } else if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && action == GLFW_RELEASE) {
-        app->grid->cubes[0]->modelRotSpeed = 0;
-    } else if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        app->grid->cubes[0]->solveSpeed += 0.5f;
-    } else if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-        app->grid->cubes[0]->solveSpeed -= 0.5f;
-    } else if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-        std::cout << app->fps << std::endl;
-    } else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-        app->grid->cubes[0]->print();
-    }
 
-    if (key == GLFW_KEY_S && action == GLFW_PRESS) { // scramble cube
-        app->grid->cubes[0]->scramble();
-    } else if (key == GLFW_KEY_R && action == GLFW_PRESS) { // reset cube
+    if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_UP && action == GLFW_PRESS) { // select cube above selection
+        app->grid->selectRelative(0, -1);
+        if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
+            app->camera.focusOn(app->grid->getSelected().get());
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_DOWN && action == GLFW_PRESS) { // select cube below selection
+        app->grid->selectRelative(0, 1);
+        if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
+            app->camera.focusOn(app->grid->getSelected().get());
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // select cube left of selection
+        app->grid->selectRelative(-1, 0);
+        if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
+            app->camera.focusOn(app->grid->getSelected().get());
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // select cube right of selection
+        app->grid->selectRelative(1, 0);
+        if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
+            app->camera.focusOn(app->grid->getSelected().get());
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_F && action == GLFW_PRESS) { // toggle focus mode
+        bool inFocus = app->camera.isInFocusMode();
+        // toggle focus mode
+        app->camera.toggleFocusMode(!inFocus);
+        // adjust camera
+        if (inFocus)
+            app->camera.reset();
+        else
+            app->camera.focusOn(app->grid->getSelected().get());
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_R && action == GLFW_PRESS) { // deselect all cubes and reset camera
+        for (std::shared_ptr<Cube> c : app->grid->cubes)
+            c->deselect();
+        app->camera.reset();
+
+    
+    
+    } else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // orbit camera right
+        app->camera.vyaw = 0.5f;
+    } else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // orbit camera left
+        app->camera.vyaw = -0.5f;
+    } else if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && action == GLFW_RELEASE) { // stop orbitting laterally on release
+        app->camera.vyaw = 0;
+    } else if (key == GLFW_KEY_UP && action == GLFW_PRESS) { // orbit camera up
+        app->camera.vpitch = 0.15f;
+    } else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) { // orbit camera down
+        app->camera.vpitch = -0.15f;
+    } else if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN) && action == GLFW_RELEASE) { // stop orbitting longitudinally on release
+        app->camera.vpitch = 0;
+    
+    
+    } else if (key == GLFW_KEY_M && action == GLFW_PRESS) { // increase solve speed
+        app->grid->getSelected()->solveSpeed += 0.5f;
+    } else if (key == GLFW_KEY_N && action == GLFW_PRESS) { // decrease solve speed
+        app->grid->getSelected()->solveSpeed -= 0.5f;
+    
+    
+    } else if (key == GLFW_KEY_F && action == GLFW_PRESS) { // print fps
+        std::cout << app->fps << std::endl;
+    } else if (key == GLFW_KEY_D && action == GLFW_PRESS) { // print cube 
+        app->grid->getSelected()->print();
+    } else if (key == GLFW_KEY_S && action == GLFW_PRESS) { // scramble cube
+        app->grid->getSelected()->scramble();
+    } else if (key == GLFW_KEY_R && action == GLFW_PRESS) { // reset grid
         app->grid->reset();
-    } else if (key == GLFW_KEY_O && action == GLFW_PRESS) { // paint grid
+    
+    
+    } else if (key == GLFW_KEY_O && action == GLFW_PRESS) { // load image and paint grid
         BMPImage bmp("../Dependencies/images/output.bmp");
-        bmp.getHeight();
         app->grid->solveImage(bmp);
+        // set default camera position to an aerial view 
+        float y = std::max(app->grid->nCols, app->grid->nRows) * 7;
+        app->camera.setDefaultEyePosition(glm::vec3(0, y, 5));
     } else if (key == GLFW_KEY_P && action == GLFW_PRESS) { // paint cube
-        // by the time this goes out of scope it is no longer needed
-        Color paintPattern[9] = { Color::BLUE,   Color::WHITE,   Color::GREEN,
-                                  Color::WHITE,   Color::ORANGE,   Color::WHITE,
-                                  Color::GREEN,   Color::WHITE,   Color::BLUE };
-        app->ai.calculatePaint(paintPattern);
-        app->ai.start();
+        Color paintPattern[9] = { 
+            Color::BLUE,   Color::WHITE,   Color::GREEN,
+            Color::WHITE,   Color::ORANGE,   Color::WHITE,
+            Color::GREEN,   Color::WHITE,   Color::BLUE };
+        AI ai(app->grid->getSelected().get());
+        ai.calculatePaint(paintPattern);
+        ai.start();
+    
+    
     } else if (key == GLFW_KEY_X && action == GLFW_PRESS) { // rotate cube across x axis
         std::shared_ptr<Instruction> instruction = std::make_shared<CubeInstruction>(glm::vec3(1, 0, 0));
-        app->grid->cubes[0]->addToQueue(instruction);
+        app->grid->getSelected()->addToQueue(instruction);
     } else if (key == GLFW_KEY_Y && action == GLFW_PRESS) { // rotate cube across y axis
         std::shared_ptr<Instruction> instruction = std::make_shared<CubeInstruction>(glm::vec3(0, 1, 0));
-        app->grid->cubes[0]->addToQueue(instruction);
+        app->grid->getSelected()->addToQueue(instruction);
     } else if (key == GLFW_KEY_Z && action == GLFW_PRESS) { // rotate cube across z axis
         std::shared_ptr<Instruction> instruction = std::make_shared<CubeInstruction>(glm::vec3(0, 0, 1));
-        app->grid->cubes[0]->addToQueue(instruction);
+        app->grid->getSelected()->addToQueue(instruction);
     }
 }

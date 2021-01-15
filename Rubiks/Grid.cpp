@@ -10,7 +10,7 @@ Grid::Grid(size_t rows, size_t columns) {
 
 void Grid::resize(size_t rows, size_t columns) {
     
-    static Color custom[54] = { // to-do test me
+    static Color custom[54] = {
 // front
    Color::GREEN,   Color::GREEN,   Color::GREEN,
    Color::GREEN,    Color::BLUE,    Color::BLUE,
@@ -96,9 +96,53 @@ void Grid::solveImage(BMPImage& bmp) {
         }
     }
 
-    // to-do: what happens when width/height are not multiples of 3? should fill in white
     // release memory
     delete[] pixels;
+}
+
+void Grid::selectRelative(unsigned int dx, unsigned int dy) {
+    // if none are selected, select first cube and return
+    bool foundSelected = false;
+    for (std::shared_ptr<Cube> c : cubes) {
+        if (c->isSelected()) {
+            foundSelected = true;
+            break;
+        }
+    }
+    if (!foundSelected) {
+        selectAbsolute(0, 0);
+        return; 
+    }
+
+    for (int r = 0; r < nRows; r++) {
+        for (int c = 0; c < nCols; c++) {
+            if (cubes[r * nCols + c]->isSelected()) {
+                int newIndex = r * nCols + c + dx + dy * nCols; // index of newly selected cube
+                if (newIndex >= 0 && newIndex < cubes.size()) { // if bounds check
+                    // deselect old cube
+                    cubes[r * nCols + c]->deselect();
+                    // select new cube
+                    cubes[newIndex]->select();
+                    return;
+                }
+            }
+        }
+    }
+}
+
+std::shared_ptr<Cube> Grid::getSelected()
+{
+    for (std::shared_ptr<Cube> c : cubes) {
+        if (c->isSelected())
+            return c;
+    }
+    // if none were selected, select and return first cube
+    selectAbsolute(0, 0);
+    return cubes[0];
+}
+
+void Grid::selectAbsolute(unsigned int row, unsigned int column) {
+    cubes[row * nCols + column]->select();
 }
 
 glm::vec3 Grid::calcCoords(unsigned int row, unsigned int column) {

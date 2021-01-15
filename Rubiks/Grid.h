@@ -5,9 +5,8 @@
 #include "BMPImage.h"
 
 class Grid {
-private:
-	size_t nRows, nCols;
 public:
+	size_t nRows, nCols;
 	std::vector<std::shared_ptr<Cube>> cubes;
 public:
 	Grid(size_t rows, size_t cols);
@@ -25,6 +24,15 @@ public:
 	* 
 	*/
 	void solveImage(BMPImage& bmp);
+
+	/* selecs a cube orthagonal to the current selection. does nothing if no cubes are selected or grid bounds are hit */
+	void selectRelative(unsigned int dx, unsigned int dy);
+
+	/* return the selected cube, or the first if none */
+	std::shared_ptr<Cube> getSelected();
+	
+	/* deselects all cubes in grid */
+	void selectAbsolute(unsigned int row, unsigned int column);
 
 private:
 	/* calculates the coordinates of a cube in grid */

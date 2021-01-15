@@ -15,11 +15,11 @@ class Cube {
 private:
 	Color initialSqColors[54];
 	Face faces[6]; // Front, Up, Back, Down, Left, Right
-	std::vector<std::shared_ptr<Instruction>> queue; // pending instructions - to-do: should these be unique instead of shared?
-	glm::vec3 position;
+	std::vector<std::shared_ptr<Instruction>> queue; // pending instructions
+	glm::vec3 position; // 3D coordinates of center of cube
+	bool selected;
 public:
 	glm::mat4 model; // model to world transformation matrix
-	float modelRotSpeed; // how fast the cube rotates on Y axis
 	float solveSpeed; // how fast a face rotates
 public:
 
@@ -60,8 +60,17 @@ public:
 	/* returns the number of pending instructions in the queue */
 	size_t getQueueSize() const;
 
+	/* get world coordinates of cube's center */
+	glm::vec3 getPosition() const;
+
 	/* translate graphical cube */
 	void translate(glm::vec3 dv);
+
+	bool isSelected() const;
+
+	void select();
+
+	void deselect();
 
 private:
 	void generateVertices();

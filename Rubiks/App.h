@@ -1,19 +1,18 @@
 #include "Cube.h"
-#include "AI.h"
 #include "Grid.h"
+#include "Camera.h"
 
 class App {
 private:
 	GLFWwindow* window;
 	Grid* grid;
-	AI ai;
 	/* handle for the shaders */
 	GLuint programID;
 	GLuint VertexArrayID;
 	/* handle for the MVP uniform */
 	GLuint MatrixID;
 	glm::mat4 Projection;
-	glm::mat4 View;
+	Camera camera;
 	/* vertices */
 	GLfloat g_vertex_buffer_data[3 * 3 * 2 * 9 * 6]; // 3 components that make up one vertex * 3 vertices that make up one triangle * 2 triangles that make up one square * 9 squares * 6 faces
 	/* colors */
@@ -23,7 +22,7 @@ private:
 	GLuint colorbuffer;
 	float fps;
 public:
-	App(Grid* grid, AI& ai);
+	App(Grid* grid);
 	~App();
 	
 	void start();

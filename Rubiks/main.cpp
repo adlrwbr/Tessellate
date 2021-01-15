@@ -34,14 +34,10 @@ int main() {
     // print cube
     grid.cubes[0]->print();
 
-    // Create AI
-    AI ai(grid.cubes[0].get());
-
     // Create app
-    App app(&grid, ai);
+    App app(&grid);
 
     // Begin input handler
-    // to-do: put graphics on separate thread and move CLI input to main thread
     std::thread inputThread(beginInputHandler, &grid);
 
     // Start app
@@ -95,7 +91,7 @@ void beginInputHandler(Grid* grid) {
                 commands.erase(commands.begin());
             if (!invalid) {
                 std::shared_ptr<Instruction> instruction = std::make_shared<FaceInstruction>(face, clockwise);
-                grid->cubes[0]->addToQueue(instruction);
+                grid->getSelected()->addToQueue(instruction);
             }
         }
         cout << "Added instruction set to queue." << endl;

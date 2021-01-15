@@ -153,6 +153,7 @@
     <ClCompile Include="AI.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="BMPImage.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Face.cpp" />
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="AI.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Face.h" />

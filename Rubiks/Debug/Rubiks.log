@@ -1,19 +1,9 @@
-﻿  Cube.cpp
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(292,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(302,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(695,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+﻿  App.cpp
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(136,23): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(142,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(276,17): warning C4244: 'initializing': conversion from '_Ty' to 'float', possible loss of data
           with
           [
-              T=float
-          ]
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(696,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(697,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
+              _Ty=size_t
           ]
   Rubiks.vcxproj -> C:\Users\adler\src\Rubiks\Debug\Rubiks.exe
