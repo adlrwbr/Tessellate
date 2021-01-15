@@ -11,7 +11,7 @@
 
 
 Cube::Cube() 
-	: model(1.0f), solveSpeed(1.3f), position(0, 0, 0), selected(0) {
+	: model(1.0f), solveSpeed(2.6f), position(0, 0, 0), selected(0) {
 	
 	// standard cube layout
 	static Color standard[54] = {
@@ -54,7 +54,7 @@ Cube::Cube()
 }
 
 Cube::Cube(Color squares[54])
-	: model(1.0f), solveSpeed(1.3f), position(0, 0, 0), selected(0) {
+	: model(1.0f), solveSpeed(2.6f), position(0, 0, 0), selected(0) {
 
 	// copy initial colors
 	for (int i = 0; i < 54; i++)

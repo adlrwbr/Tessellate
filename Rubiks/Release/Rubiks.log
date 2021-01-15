@@ -1,33 +1,18 @@
-﻿  AI.cpp
-C:\Users\adler\src\Rubiks\Rubiks\AI.cpp(26,25): warning C4114: same type qualifier used more than once
-  App.cpp
-  Cube.cpp
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(243,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(253,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(647,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(648,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(649,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-  CubeManager.cpp
-  Face.cpp
-  main.cpp
-  Shader.cpp
-  Square.cpp
+﻿  Grid.cpp
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(49,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(50,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(80,37): warning C4244: 'argument': conversion from 'float' to 'size_t', possible loss of data
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(80,16): warning C4244: 'argument': conversion from 'float' to 'size_t', possible loss of data
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(86,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(87,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(117,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(118,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(121,47): warning C4018: '<': signed/unsigned mismatch
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  Previous IPDB not found, fall back to full compilation.
-  All 555 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  2 of 677 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    7 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 LINK : warning LNK4286: symbol '___glewLinkProgram' defined in 'glew32s.lib(glew.obj)' is imported by 'Shader.obj'
 LINK : warning LNK4286: symbol '___glewDeleteShader' defined in 'glew32s.lib(glew.obj)' is imported by 'Shader.obj'

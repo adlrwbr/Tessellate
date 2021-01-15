@@ -133,7 +133,8 @@ void App::loop() {
         // get delta time and fps
         lastTime = currentTime;
         currentTime = glfwGetTime();
-        deltaTime = .1;// float(currentTime - lastTime);
+        deltaTime = float(currentTime - lastTime);
+        //deltaTime = 0.1;
         fps = 1 / deltaTime;
 
         // main update function
@@ -206,23 +207,31 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
     // Query for window user pointer (the app instance)
     App* app = (App*)glfwGetWindowUserPointer(window);
 
-
-    if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_UP && action == GLFW_PRESS) { // select cube above selection
+    /* CUBE SELECTION */
+    if (mods != GLFW_MOD_SHIFT && key == GLFW_KEY_UP && action == GLFW_PRESS) { // select cube above selection
         app->grid->selectRelative(0, -1);
         if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
             app->camera.focusOn(app->grid->getSelected().get());
-    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_DOWN && action == GLFW_PRESS) { // select cube below selection
+    } else if (mods != GLFW_MOD_SHIFT && key == GLFW_KEY_DOWN && action == GLFW_PRESS) { // select cube below selection
         app->grid->selectRelative(0, 1);
         if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
             app->camera.focusOn(app->grid->getSelected().get());
-    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // select cube left of selection
+    } else if (mods != GLFW_MOD_SHIFT && key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // select cube left of selection
         app->grid->selectRelative(-1, 0);
         if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
             app->camera.focusOn(app->grid->getSelected().get());
-    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // select cube right of selection
+    } else if (mods != GLFW_MOD_SHIFT && key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // select cube right of selection
         app->grid->selectRelative(1, 0);
         if (app->camera.isInFocusMode()) // focus on cube if camera in focus mode
             app->camera.focusOn(app->grid->getSelected().get());
+
+    
+    /* CAMERA CONTROLS */
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_R && action == GLFW_PRESS) { // deselect all cubes and reset camera
+        for (std::shared_ptr<Cube> c : app->grid->cubes) // deselect all cubes
+            c->deselect();
+        app->camera.toggleFocusMode(false); // turn off focus mode
+        app->camera.reset(); // reset camera
     } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_F && action == GLFW_PRESS) { // toggle focus mode
         bool inFocus = app->camera.isInFocusMode();
         // toggle focus mode
@@ -232,23 +241,16 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
             app->camera.reset();
         else
             app->camera.focusOn(app->grid->getSelected().get());
-    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_R && action == GLFW_PRESS) { // deselect all cubes and reset camera
-        for (std::shared_ptr<Cube> c : app->grid->cubes)
-            c->deselect();
-        app->camera.reset();
-
-    
-    
-    } else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // orbit camera right
-        app->camera.vyaw = 0.5f;
-    } else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // orbit camera left
-        app->camera.vyaw = -0.5f;
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_RIGHT && action == GLFW_PRESS) { // orbit camera right
+        app->camera.vyaw = 1.5f;
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_LEFT && action == GLFW_PRESS) { // orbit camera left
+        app->camera.vyaw = -1.5f;
     } else if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) && action == GLFW_RELEASE) { // stop orbitting laterally on release
         app->camera.vyaw = 0;
-    } else if (key == GLFW_KEY_UP && action == GLFW_PRESS) { // orbit camera up
-        app->camera.vpitch = 0.15f;
-    } else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) { // orbit camera down
-        app->camera.vpitch = -0.15f;
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_UP && action == GLFW_PRESS) { // orbit camera up
+        app->camera.vpitch = 0.6f;
+    } else if (mods == GLFW_MOD_SHIFT && key == GLFW_KEY_DOWN && action == GLFW_PRESS) { // orbit camera down
+        app->camera.vpitch = -0.6f;
     } else if ((key == GLFW_KEY_UP || key == GLFW_KEY_DOWN) && action == GLFW_RELEASE) { // stop orbitting longitudinally on release
         app->camera.vpitch = 0;
     
@@ -275,7 +277,7 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
         // set default camera position to an aerial view 
         float y = std::max(app->grid->nCols, app->grid->nRows) * 7;
         app->camera.setDefaultEyePosition(glm::vec3(0, y, 5));
-    } else if (key == GLFW_KEY_P && action == GLFW_PRESS) { // paint cube
+    } else if (key == GLFW_KEY_P && action == GLFW_PRESS) { // paint selected cube
         Color paintPattern[9] = { 
             Color::BLUE,   Color::WHITE,   Color::GREEN,
             Color::WHITE,   Color::ORANGE,   Color::WHITE,

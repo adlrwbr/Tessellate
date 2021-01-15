@@ -150,11 +150,11 @@ glm::vec3 Grid::calcCoords(unsigned int row, unsigned int column) {
     static const double MIN_GAP = 1.5 * sqrt(2) / 2.0; // the minimum gap between cubes in order for vertices to not touch each other when rotating
     static const double CUBE_WIDTH = 3.0;
 
-    const double CUBE_AND_GAP_WIDTH = (CUBE_WIDTH + MIN_GAP + EXTRA_GAP);
+    static const double CUBE_AND_GAP_WIDTH = (CUBE_WIDTH + MIN_GAP + EXTRA_GAP);
 
-    double x = column * CUBE_AND_GAP_WIDTH - (nCols * CUBE_AND_GAP_WIDTH / 2.0);
+    double x = column * CUBE_AND_GAP_WIDTH - ((nCols-1) * CUBE_AND_GAP_WIDTH / 2.0);
     static const double y = 0;
-    double z = row * CUBE_AND_GAP_WIDTH - (nRows * CUBE_AND_GAP_WIDTH / 2.0);
+    double z = row * CUBE_AND_GAP_WIDTH - ((nRows-1) * CUBE_AND_GAP_WIDTH / 2.0);
 
     return glm::vec3(x, y, z);
 }

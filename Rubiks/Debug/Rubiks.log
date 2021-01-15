@@ -1,9 +1,37 @@
 ﻿  App.cpp
-C:\Users\adler\src\Rubiks\Rubiks\App.cpp(136,23): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\adler\src\Rubiks\Rubiks\App.cpp(142,27): warning C4018: '<': signed/unsigned mismatch
-C:\Users\adler\src\Rubiks\Rubiks\App.cpp(276,17): warning C4244: 'initializing': conversion from '_Ty' to 'float', possible loss of data
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(143,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(278,17): warning C4244: 'initializing': conversion from '_Ty' to 'float', possible loss of data
           with
           [
               _Ty=size_t
           ]
+  Cube.cpp
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(309,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(319,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(712,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(713,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(714,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Grid.cpp
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(49,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(50,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(80,37): warning C4244: 'argument': conversion from 'float' to 'size_t', possible loss of data
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(80,16): warning C4244: 'argument': conversion from 'float' to 'size_t', possible loss of data
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(86,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(87,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(117,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(118,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\Grid.cpp(121,47): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
   Rubiks.vcxproj -> C:\Users\adler\src\Rubiks\Debug\Rubiks.exe
