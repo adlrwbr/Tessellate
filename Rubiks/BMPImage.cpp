@@ -33,15 +33,15 @@ BMPImage::BMPImage(const char* const filepath) {
 	data = new char[dataSize];
 
 	// read file into data excluding padding bytes
-	int bi = 0; // byte index
+	unsigned int nPaddingBytesSeen = 0; // how many padding bytes have been thrown away so far
 	char shitByte; // used to read worthless padding bytes into
-	for (int i = 0; i < dataSize + bi; i++) { // for each byte
+	for (int i = 0; i < dataSize + nPaddingBytesSeen; i++) { // for each byte
 		if (i % byteWidthWPadding >= width * 3) { // if this byte is a padding byte
 			// don't store it
 			inFile.read(&shitByte, 1);
+			nPaddingBytesSeen++;
 		} else {
-			inFile.read(data + bi, 1);
-			bi++;
+			inFile.read(data + i - nPaddingBytesSeen, 1);
 		}
 	}
 

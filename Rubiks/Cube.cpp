@@ -293,13 +293,13 @@ bool Cube::isSelected() const {
 
 void Cube::select() {
 	selected = true;
-	translate(glm::vec3(0, 10, 0)); // translate up
+	translate(glm::vec3(0, 7, 0)); // translate up
 }
 
 void Cube::deselect() {
 	if (selected) {
 		selected = false;
-		translate(glm::vec3(0, -10, 0)); // translate down
+		translate(glm::vec3(0, -7, 0)); // translate down
 	}
 }
 

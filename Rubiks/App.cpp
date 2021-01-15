@@ -26,7 +26,7 @@
 #include "AI.h"
 
 App::App(Grid* grid)
- : grid(grid), camera(glm::vec3(4, 40, 6), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)), fps(0) { // 0, 110, 5
+ : grid(grid), camera(glm::vec3(0, 23, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)), fps(0) { // 0, 110, 5
 
     // seed RNG
     srand(static_cast<unsigned int>(time(0)));
@@ -275,7 +275,9 @@ void App::key_callback(GLFWwindow* window, int key, int scancode, int action, in
         BMPImage bmp("../Dependencies/images/output.bmp");
         app->grid->solveImage(bmp);
         // set default camera position to an aerial view 
-        float y = std::max(app->grid->nCols, app->grid->nRows) * 7;
+        // determine the y value of camera based off of how max rows/columns there are - lower dimension = zoomed out by a higher factor
+        size_t maxDimension = std::max(app->grid->nCols, app->grid->nRows);
+        float y = (maxDimension == 1 ? maxDimension * 23 : maxDimension < 4 ? maxDimension * 11 : maxDimension * 7);
         app->camera.setDefaultEyePosition(glm::vec3(0, y, 5));
     } else if (key == GLFW_KEY_P && action == GLFW_PRESS) { // paint selected cube
         Color paintPattern[9] = { 
