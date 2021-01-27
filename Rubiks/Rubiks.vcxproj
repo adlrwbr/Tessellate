@@ -71,15 +71,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\intermediates\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,29 +158,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AI.cpp" />
-    <ClCompile Include="App.cpp" />
-    <ClCompile Include="BMPImage.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Cube.cpp" />
-    <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="Face.cpp" />
-    <ClCompile Include="Instruction.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Square.cpp" />
+    <ClCompile Include="src\AI.cpp" />
+    <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\BMPImage.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Cube.cpp" />
+    <ClCompile Include="src\Grid.cpp" />
+    <ClCompile Include="src\Face.cpp" />
+    <ClCompile Include="src\Instruction.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Square.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AI.h" />
-    <ClInclude Include="App.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Cube.h" />
-    <ClInclude Include="Grid.h" />
-    <ClInclude Include="Face.h" />
-    <ClInclude Include="BMPImage.h" />
-    <ClInclude Include="Instruction.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Square.h" />
+    <ClInclude Include="src\AI.hpp" />
+    <ClInclude Include="src\App.hpp" />
+    <ClInclude Include="src\Camera.hpp" />
+    <ClInclude Include="src\Cube.hpp" />
+    <ClInclude Include="src\Grid.hpp" />
+    <ClInclude Include="src\Face.hpp" />
+    <ClInclude Include="src\BMPImage.hpp" />
+    <ClInclude Include="src\Instruction.hpp" />
+    <ClInclude Include="src\Shader.hpp" />
+    <ClInclude Include="src\Square.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\dithering.py" />
+    <None Include="src\vector.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
