@@ -46,7 +46,7 @@ App::App()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // use glfw core profile
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(1024, 800, "Rubik's Cube", NULL, NULL);
+    window = glfwCreateWindow(1024, 800, "Tessellate", NULL, NULL);
     if (window == NULL) {
         throw std::runtime_error("Failed to open GLFW window\n");
     }
