@@ -1,0 +1,4 @@
+﻿  App.cpp
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(143,27): warning C4018: '<': signed/unsigned mismatch
+C:\Users\adler\src\Rubiks\Rubiks\App.cpp(279,17): warning C4244: 'initializing': conversion from 'size_t' to 'float', possible loss of data
+  Rubiks.vcxproj -> C:\Users\adler\src\Rubiks\Debug\Rubiks.exe

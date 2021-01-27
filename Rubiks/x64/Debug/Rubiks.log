@@ -1,0 +1,71 @@
+﻿  AI.cpp
+C:\Users\adler\src\Rubiks\Rubiks\AI.cpp(26,25): warning C4114: same type qualifier used more than once
+  App.cpp
+  Cube.cpp
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(647,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(648,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\adler\src\Rubiks\Rubiks\Cube.cpp(649,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  CubeManager.cpp
+C:\Users\adler\src\Rubiks\Rubiks\CubeManager.cpp(37,21): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  Face.cpp
+  main.cpp
+  Shader.cpp
+  Square.cpp
+  Generating Code...
+App.obj : error LNK2019: unresolved external symbol glewInit referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwInit referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwTerminate referenced in function "public: __cdecl App::~App(void)" (??1App@@QEAA@XZ)
+App.obj : error LNK2019: unresolved external symbol glfwWindowHint referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwCreateWindow referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwWindowShouldClose referenced in function "public: void __cdecl App::loop(void)" (?loop@App@@QEAAXXZ)
+App.obj : error LNK2019: unresolved external symbol glfwSetWindowUserPointer referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwGetWindowUserPointer referenced in function "public: static void __cdecl App::key_callback(struct GLFWwindow *,int,int,int,int)" (?key_callback@App@@SAXPEAUGLFWwindow@@HHHH@Z)
+App.obj : error LNK2019: unresolved external symbol glfwPollEvents referenced in function "public: void __cdecl App::loop(void)" (?loop@App@@QEAAXXZ)
+App.obj : error LNK2019: unresolved external symbol glfwSetInputMode referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwGetKey referenced in function "public: void __cdecl App::loop(void)" (?loop@App@@QEAAXXZ)
+App.obj : error LNK2019: unresolved external symbol glfwSetKeyCallback referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwGetTime referenced in function "public: void __cdecl App::loop(void)" (?loop@App@@QEAAXXZ)
+App.obj : error LNK2019: unresolved external symbol glfwMakeContextCurrent referenced in function "public: __cdecl App::App(class CubeManager *,class AI &)" (??0App@@QEAA@PEAVCubeManager@@AEAVAI@@@Z)
+App.obj : error LNK2019: unresolved external symbol glfwSwapBuffers referenced in function "public: void __cdecl App::loop(void)" (?loop@App@@QEAAXXZ)
+App.obj : error LNK2001: unresolved external symbol __glewBindBuffer
+App.obj : error LNK2001: unresolved external symbol __glewBufferData
+App.obj : error LNK2001: unresolved external symbol __glewDeleteBuffers
+App.obj : error LNK2001: unresolved external symbol __glewGenBuffers
+App.obj : error LNK2001: unresolved external symbol __glewDeleteProgram
+App.obj : error LNK2001: unresolved external symbol __glewDisableVertexAttribArray
+App.obj : error LNK2001: unresolved external symbol __glewEnableVertexAttribArray
+App.obj : error LNK2001: unresolved external symbol __glewGetUniformLocation
+App.obj : error LNK2001: unresolved external symbol __glewUniformMatrix4fv
+App.obj : error LNK2001: unresolved external symbol __glewUseProgram
+App.obj : error LNK2001: unresolved external symbol __glewVertexAttribPointer
+App.obj : error LNK2001: unresolved external symbol __glewBindVertexArray
+App.obj : error LNK2001: unresolved external symbol __glewDeleteVertexArrays
+App.obj : error LNK2001: unresolved external symbol __glewGenVertexArrays
+App.obj : error LNK2001: unresolved external symbol glewExperimental
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewAttachShader referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewCompileShader referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewCreateProgram referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewCreateShader referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewDeleteShader referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewDetachShader referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewGetProgramInfoLog referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewGetProgramiv referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewGetShaderInfoLog referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewGetShaderiv referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewLinkProgram referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+Shader.obj : error LNK2019: unresolved external symbol __imp___glewShaderSource referenced in function "unsigned int __cdecl LoadShaders(char const *,char const *)" (?LoadShaders@@YAIPEBD0@Z)
+C:\Users\adler\src\Rubiks\Dependencies\GLFW\lib-vc2019\glfw3.lib : warning LNK4272: library machine type 'x86' conflicts with target machine type 'x64'
+C:\Users\adler\src\Rubiks\Dependencies\GLEW\lib\Release\Win32\glew32s.lib : warning LNK4272: library machine type 'x86' conflicts with target machine type 'x64'
+C:\Users\adler\src\Rubiks\x64\Debug\Rubiks.exe : fatal error LNK1120: 42 unresolved externals
